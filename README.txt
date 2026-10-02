@@ -1,0 +1,1 @@
+This project is about creating a PC assistant that can handle some of your daily routines for you. This is my very first project, and since I haven’t been learning programming for all that long, I’m not setting my expectations too high.
