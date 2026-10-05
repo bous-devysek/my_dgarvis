@@ -16,10 +16,17 @@ class App(ctk.CTk):
         self.button = ctk.CTkCheckBox(master=self, 
                                   text='avto load program',
                                   command=self.avto_load)
+        self.button_start = ctk.CTkButton(master=self,
+                                          text = 'start',
+                                          command='start_programm')
 
 
     def main_menu(self):
-        self.button.place(x=360,y=240)
+        self.button.place(x=50,y=400-10)
+        self.button_start.place(x=450,y=400-10)
+
+    def start_programm(self):
+        pass
 
     
     # Фукция для изменения состояния автозапуска программы / avto load program
