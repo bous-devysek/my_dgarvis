@@ -2,7 +2,7 @@ import customtkinter as ctk
 import winreg
 import sys
 import json
-import voice_engine
+import core.voice_engine
 
 ctk.set_appearance_mode('dark')
 ctk.set_default_color_theme('dark-blue')
@@ -49,12 +49,15 @@ class App(ctk.CTk):
         self.button_start.place(x=450,y=400-10)
 
 
-    def start_programm(self):
+    #функция отвечающая за запись голоса
+    def stream_start(self):
+        print('программа начала работу')
         pass
 
     
     # Фукция для изменения состояния автозапуска программы / avto load program
     def avto_load(self):
+        print('статус avto-load изменен')
         status = self.button.get()
         self.save_settings('stats_avto_load',status)
         app_path = f'"{sys.executable}" "{__file__}"'
