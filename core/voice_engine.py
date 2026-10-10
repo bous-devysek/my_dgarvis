@@ -1,61 +1,91 @@
+import sys
 import faster_whisper as fw
 import sounddevice as sd
-import queue
-from vosk import Model, KaldiRecognizer
-import json
+import numpy as np
+import torch
+import command 
 
-audio_queue = queue.Queue()
+SAMPLE_RATE = 16000
+CHANNELS = 1
+BLOCK_SIZE = 512
 
-simple_rate = 16000
-channelss = 1
-
-model = Model(model_name="vosk-model-small-ru-0.22")
-
-def audio_callbak(indata, frames, time, status)->None:
-    audio_queue.put(bytes(indata))
-
+model_size = 'base'
 
 def check_devaice():
     print(sd.query_devices())
 
 
-def voise_asistent():
-    print('запись пошла')
-    # активируем запись с микрофона
-    steam = sd.InputStream(samplerate=simple_rate,
-                            channels=channelss,
-                            blocksize=16000,
-                            dtype='int16',
-                            device=1,
-                            callback=audio_callbak)
-    #активируем распознователь текста
-    recognizer = KaldiRecognizer(model, simple_rate)
+class Voice_enginer:
+    def __init__(self):
+        self.whisper_model = fw.WhisperModel(model_size,
+                     device='cuba',
+                     compute_type='float32')
 
-    with steam:
-        while True:
-            data = audio_queue.get()
+        self.vad_model = torch.hub.load(repo_or_dir='snakers4/silero-vad', 
+                                        model='silero_vad')
+        (self.get_speech_timestamps, _, self.read_audio, _, _) = self.utils
 
-            if recognizer.AcceptWaveform(data):
-                # Метод AcceptWaveform вернет True, если Vosk ПОНЯЛ, что вы закончили фразу!
-                result_json = recognizer.Result()
-                result_data = json.loads(result_json)
-                text = result_data.get("text", "")
-                
-                if text:
-                    print(f"Вы сказали: {text}")
+        self.audio_buffer = []
+        self.speeck_status = False
+        self.silence_counter = 0
+        print('все готово к работе')
 
-                if text == 'стоп':
-                    break
+    
+    def audio_callbak(self,indata, frames, time, status)->None:
+        # Превращает входящий поток в массив float32
+        audio_frame = np.frombuffer(indata,dtype=np.float32)
 
-            else:
-                # Если человек еще говорит, Vosk выдает промежуточные (неполные) результаты
-                partial_json = recognizer.PartialResult()
-                partial_data = json.loads(partial_json)
-                partial_text = partial_data.get("partial", "")
-                if partial_text:
-                    # Выводим текст в одну строку на лету
-                    print(f"\Слушаю: {partial_text}", end="", flush=True)
+        # Переводит аудио-фрейм в тензор PyTorch для нейросети VAD
+        audio_tensor = torch.from_numpy(audio_frame)
+
+        # Оценивает вероятность того, что говорит человек
+        speech_prob = self.vad_model(audio_tensor, SAMPLE_RATE).item()
+
+        if speech_prob > 0.5:
+            if not self.speeck_status:
+                print('запись идет')
+                self.speeck_status = True
+
+            self.audio_buffer.append(audio_frame.copy())
+            self.silence_counter = 0
+
+        else:
+            self.silence_counter += 1
+            if self.silence_counter >= 35:
+                print('запись окончена')
+                self.process_cached_audio()
 
 
+    def process_cached_audio(self):
+        if not self.audio_buffer:
+            return
+            
+        full_audio = np.concatenate(self.audio_buffer)
+
+        self.audio_buffer = []
+        self.is_speaking = False
+        self.silence_counter = 0
+
+        segments,_ = self.whisper_model.transcribe(full_audio,beam_size=5,language='ru')
+
+        result_text = ''
+        for segment in segments:
+            result_text += segment.text
+
+        if result_text:
+            print(result_text)
+
+
+    def voise_asistent(self):
+        print('запись пошла')
+        # активируем запись с микрофона
+        self.steam = sd.InputStream(samplerate=SAMPLE_RATE,
+                                channels=CHANNELS,
+                                blocksize=8000,
+                                dtype='float32',
+                                device=1,
+                                callback=self.audio_callbak)
+
+Voice = Voice_enginer()
 if __name__ == '__main__':
-    voise_asistent()
+    Voice.voise_asistent()
