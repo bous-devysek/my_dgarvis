@@ -9,7 +9,7 @@ SAMPLE_RATE = 16000
 CHANNELS = 1
 BLOCK_SIZE = 512
 
-model_size = 'base'
+model_size = 'C:/Users/bous_devysek/Desktop/my_gravis/core/faster-whisper-base'
 
 def check_devaice():
     print(sd.query_devices())
@@ -19,10 +19,10 @@ class Voice_enginer:
     def __init__(self):
         self.whisper_model = fw.WhisperModel(model_size,
                      device='cuba',
-                     compute_type='float32')
+                     compute_type='float16')
 
-        self.vad_model = torch.hub.load(repo_or_dir='snakers4/silero-vad', 
-                                        model='silero_vad')
+        self.vad_model, self.utils = torch.hub.load(repo_or_dir='snakers4/silero-vad', 
+                                        model='silero_vad',)
         (self.get_speech_timestamps, _, self.read_audio, _, _) = self.utils
 
         self.audio_buffer = []
@@ -31,7 +31,7 @@ class Voice_enginer:
         print('все готово к работе')
 
     
-    def audio_callbak(self,indata, frames, time, status)->None:
+    def audio_callback(self,indata, frames, time, status)->None:
         # Превращает входящий поток в массив float32
         audio_frame = np.frombuffer(indata,dtype=np.float32)
 
@@ -51,9 +51,10 @@ class Voice_enginer:
 
         else:
             self.silence_counter += 1
-            if self.silence_counter >= 35:
-                print('запись окончена')
-                self.process_cached_audio()
+            if self.speeck_status == True:
+                self.audio_buffer.append(audio_frame.copy())
+                if self.silence_counter > 34:
+                    self.process_cached_audio()
 
 
     def process_cached_audio(self):
@@ -63,8 +64,10 @@ class Voice_enginer:
         full_audio = np.concatenate(self.audio_buffer)
 
         self.audio_buffer = []
-        self.is_speaking = False
+        self.speeck_status = False
         self.silence_counter = 0
+
+        print('запись окончена')
 
         segments,_ = self.whisper_model.transcribe(full_audio,beam_size=5,language='ru')
 
@@ -77,15 +80,19 @@ class Voice_enginer:
 
 
     def voise_asistent(self):
-        print('запись пошла')
+        print('активирована запись с микрофона')
         # активируем запись с микрофона
         self.steam = sd.InputStream(samplerate=SAMPLE_RATE,
                                 channels=CHANNELS,
-                                blocksize=8000,
+                                blocksize=BLOCK_SIZE,
                                 dtype='float32',
                                 device=1,
-                                callback=self.audio_callbak)
+                                callback=self.audio_callback)
+        self.steam.start()
 
 Voice = Voice_enginer()
 if __name__ == '__main__':
     Voice.voise_asistent()
+text =''
+while text != 'стоп':
+    text = input()
