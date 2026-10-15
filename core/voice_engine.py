@@ -1,25 +1,45 @@
+import os
 import sys
 import faster_whisper as fw
 import sounddevice as sd
 import numpy as np
 import torch
-import command 
+import core.command as command
 
 SAMPLE_RATE = 16000
 CHANNELS = 1
 BLOCK_SIZE = 512
+CD_TYPE = ''
 
-model_size = 'C:/Users/bous_devysek/Desktop/my_gravis/core/faster-whisper-base'
+#капелька вайп кодинга
+if sys.platform == "win32":
+    import site
+    user_packages = site.getusersitepackages()
+    
+    # Путь к cublas и cudnn в вашем окружении (как на скриншоте)
+    cublas_path = os.path.join(user_packages, "nvidia", "cublas", "bin")
+    cudnn_path = os.path.join(user_packages, "nvidia", "cudnn", "bin")
+    
+    if os.path.exists(cublas_path):
+        os.add_dll_directory(cublas_path)
+    if os.path.exists(cudnn_path):
+        os.add_dll_directory(cudnn_path)
+# тут он заканчивается
+
+model_size = 'C:/Users/bous_devysek/Desktop/my_gravis/core/faster-whisper-small'
 
 def check_devaice():
     print(sd.query_devices())
 
 
+# класс для распознания, обработке и выполнения команд
 class Voice_enginer:
+    # создание основных переменных и распаковка модели
     def __init__(self):
         self.whisper_model = fw.WhisperModel(model_size,
-                     device='cuba',
-                     compute_type='float16')
+                     device='cuda',
+                     compute_type='float32')
+
 
         self.vad_model, self.utils = torch.hub.load(repo_or_dir='snakers4/silero-vad', 
                                         model='silero_vad',)
@@ -32,7 +52,7 @@ class Voice_enginer:
 
     
     def audio_callback(self,indata, frames, time, status)->None:
-        # Превращает входящий поток в массив float32
+        # Превращает входящий поток в кусочки для масива float16
         audio_frame = np.frombuffer(indata,dtype=np.float32)
 
         # Переводит аудио-фрейм в тензор PyTorch для нейросети VAD
@@ -41,11 +61,13 @@ class Voice_enginer:
         # Оценивает вероятность того, что говорит человек
         speech_prob = self.vad_model(audio_tensor, SAMPLE_RATE).item()
 
+        # если веротность больше 0.5 то программа начинает запись и оканчивает если пользователь молчит больше 1 сек +-
         if speech_prob > 0.5:
             if not self.speeck_status:
                 print('запись идет')
                 self.speeck_status = True
 
+            # добовляем куски пока пользоваьель говорит, и сбрасуем статус молчания до 0
             self.audio_buffer.append(audio_frame.copy())
             self.silence_counter = 0
 
@@ -57,6 +79,7 @@ class Voice_enginer:
                     self.process_cached_audio()
 
 
+    #переводит весь масив в речь и вызываем команду если она есть
     def process_cached_audio(self):
         if not self.audio_buffer:
             return
@@ -75,8 +98,11 @@ class Voice_enginer:
         for segment in segments:
             result_text += segment.text
 
+        result_text = result_text.lower()
+
         if result_text:
             print(result_text)
+            command.command_recognition(result_text)
 
 
     def voise_asistent(self):
@@ -90,9 +116,4 @@ class Voice_enginer:
                                 callback=self.audio_callback)
         self.steam.start()
 
-Voice = Voice_enginer()
-if __name__ == '__main__':
-    Voice.voise_asistent()
-text =''
-while text != 'стоп':
-    text = input()
+    

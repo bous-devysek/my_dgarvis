@@ -2,7 +2,7 @@ import customtkinter as ctk
 import winreg
 import sys
 import json
-import core.voice_engine
+from core.voice_engine import Voice_enginer
 
 ctk.set_appearance_mode('dark')
 ctk.set_default_color_theme('dark-blue')
@@ -26,7 +26,8 @@ class App(ctk.CTk):
                                   command=self.avto_load)
         self.button_start = ctk.CTkButton(master=self,
                                           text = 'start',
-                                          command=self.start_programm)
+                                          command=self.stream_start)
+        self.status_asistent = False
         if self.temp_data['stats_avto_load']:
             self.button.select()
         else:
@@ -38,7 +39,7 @@ class App(ctk.CTk):
             with open('setting_user.json','r',encoding='utf-8') as file:
                 self.temp_data = json.load(file)
 
-        except FileNotFoundError:
+        except FileNotFoundError or JSONDecodeError:
             with open('setting_user.json','w',encoding='utf-8') as file:
                 json.dump(standard_user_setting,file,indent=4,ensure_ascii=False)
                 self.setting()
@@ -52,7 +53,8 @@ class App(ctk.CTk):
     #функция отвечающая за запись голоса
     def stream_start(self):
         print('программа начала работу')
-        pass
+        Voice = Voice_enginer()
+        Voice.voise_asistent()
 
     
     # Фукция для изменения состояния автозапуска программы / avto load program
