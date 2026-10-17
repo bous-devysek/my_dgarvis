@@ -98,8 +98,6 @@ class Voice_enginer:
         for segment in segments:
             result_text += segment.text
 
-        result_text = result_text.lower()
-
         if result_text:
             print(result_text)
             command.command_recognition(result_text)
