@@ -17,14 +17,15 @@ def request_filtering(input_text):
     input_text = input_text.lower()
     text = text_clear(input_text)
     list_words = text.split()
-    print(list_words)
     return list_words
 
 
 # Приведение слов в начальную фому
 def lemmatization(text):
+    print(f'{text}-до лематизации')
     list_words = request_filtering(text)
     result = [morph.parse(word)[0].normal_form 
               for word in list_words]
+    print(f'{result}-после')
     return result
 
