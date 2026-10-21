@@ -4,7 +4,7 @@ import faster_whisper as fw
 import sounddevice as sd
 import numpy as np
 import torch
-import core.command as command
+import core.model_inference as mi
 
 SAMPLE_RATE = 16000
 CHANNELS = 1
@@ -94,13 +94,13 @@ class Voice_enginer:
 
         segments,_ = self.whisper_model.transcribe(full_audio,beam_size=5,language='ru')
 
-        result_text = ''
+        result = ''
         for segment in segments:
-            result_text += segment.text
+            result += segment.text
 
-        if result_text:
-            print(result_text)
-            command.command_recognition(result_text)
+        if result:
+            print(result)
+            mi.defining_invoking_commands(result)
 
 
     def voise_asistent(self):

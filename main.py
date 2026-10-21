@@ -12,9 +12,8 @@ REG_PATH = r'Software\Microsoft\Windows\CurrentVersion\Run'
 
 standard_user_setting = {
     'name_user':'',
-    'stats_avto_load':0
+    'stats_auto_load':0,
     }
-
 # Основной интерфейс приложения / interface
 class App(ctk.CTk):
     def __init__(self):
@@ -22,16 +21,17 @@ class App(ctk.CTk):
         self.setting()
         self.geometry('720x480')
         self.button = ctk.CTkCheckBox(master=self, 
-                                  text='avto load program',
+                                  text='auto load program',
                                   command=self.avto_load)
         self.button_start = ctk.CTkButton(master=self,
                                           text = 'start',
                                           command=self.stream_start)
         self.status_asistent = False
-        if self.temp_data['stats_avto_load']:
+        if self.temp_data['stats_auto_load']:
             self.button.select()
         else:
             self.button.deselect()
+
 
     #Чтение настроек пользователя/или их создание в противном случае
     def setting(self):
@@ -56,12 +56,12 @@ class App(ctk.CTk):
         Voice = Voice_enginer()
         Voice.voise_asistent()
 
-    
+
     # Фукция для изменения состояния автозапуска программы / avto load program
-    def avto_load(self):
-        print('статус avto-load изменен')
+    def auto_load(self):
+        print('статус auto-load изменен')
         status = self.button.get()
-        self.save_settings('stats_avto_load',status)
+        self.save_settings('stats_auto_load',status)
         app_path = f'"{sys.executable}" "{__file__}"'
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,REG_PATH,0,winreg.KEY_WRITE)
         
