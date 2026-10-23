@@ -1,32 +1,42 @@
 import os
 import sys
-import faster_whisper as fw
 import sounddevice as sd
 import numpy as np
 import torch
 import core.model_inference as mi
+import queue
+import threading
 
 SAMPLE_RATE = 16000
 CHANNELS = 1
 BLOCK_SIZE = 512
 CD_TYPE = ''
 
+q = queue.Queue(maxsize=0)
+stats_voise_asistent = False
+
+model_size = os.path.join(os.path.dirname(__file__), 'faster-whisper-small')
+import faster_whisper as fw
+
 #капелька вайп кодинга
 if sys.platform == "win32":
     import site
     user_packages = site.getusersitepackages()
-    
-    # Путь к cublas и cudnn в вашем окружении (как на скриншоте)
     cublas_path = os.path.join(user_packages, "nvidia", "cublas", "bin")
     cudnn_path = os.path.join(user_packages, "nvidia", "cudnn", "bin")
-    
-    if os.path.exists(cublas_path):
-        os.add_dll_directory(cublas_path)
-    if os.path.exists(cudnn_path):
-        os.add_dll_directory(cudnn_path)
-# тут он заканчивается
 
-model_size = 'C:/Users/bous_devysek/Desktop/my_gravis/core/faster-whisper-small'
+    for p in (cudnn_path, cublas_path):
+        if os.path.exists(p):
+            os.environ["PATH"] = p + os.pathsep + os.environ.get("PATH", "")
+            os.add_dll_directory(p)
+
+# Порядок поиска: папка core/silero-vad -> кэш torch.hub -> скачивание с GitHub.
+silero_vad_repo = os.path.join(os.path.dirname(__file__), 'silero-vad')
+if not os.path.exists(os.path.join(silero_vad_repo, 'hubconf.py')):
+    hub_cache = os.path.join(os.path.expanduser('~'), '.cache', 'torch', 'hub', 'snakers4_silero-vad_master')
+    silero_vad_repo = hub_cache if os.path.exists(os.path.join(hub_cache, 'hubconf.py')) else 'snakers4/silero-vad'
+
+# тут он заканчивается
 
 def check_devaice():
     print(sd.query_devices())
@@ -41,12 +51,14 @@ class Voice_enginer:
                      compute_type='float32')
 
 
-        self.vad_model, self.utils = torch.hub.load(repo_or_dir='snakers4/silero-vad', 
+        self.vad_model, self.utils = torch.hub.load(
+                                        source='local',
+                                        repo_or_dir=silero_vad_repo, 
                                         model='silero_vad',)
         (self.get_speech_timestamps, _, self.read_audio, _, _) = self.utils
 
         self.audio_buffer = []
-        self.speeck_status = False
+        self.speech_status = False
         self.silence_counter = 0
         print('все готово к работе')
 
@@ -63,9 +75,9 @@ class Voice_enginer:
 
         # если веротность больше 0.5 то программа начинает запись и оканчивает если пользователь молчит больше 1 сек +-
         if speech_prob > 0.5:
-            if not self.speeck_status:
+            if not self.speech_status:
                 print('запись идет')
-                self.speeck_status = True
+                self.speech_status = True
 
             # добовляем куски пока пользоваьель говорит, и сбрасуем статус молчания до 0
             self.audio_buffer.append(audio_frame.copy())
@@ -73,10 +85,17 @@ class Voice_enginer:
 
         else:
             self.silence_counter += 1
-            if self.speeck_status == True:
+            if self.speech_status == True:
                 self.audio_buffer.append(audio_frame.copy())
                 if self.silence_counter > 34:
                     self.process_cached_audio()
+
+    
+    def worker(self):
+        while True:
+            text = q.get()
+            mi.defining_invoking_commands(text)
+            q.task_done()
 
 
     #переводит весь масив в речь и вызываем команду если она есть
@@ -87,11 +106,9 @@ class Voice_enginer:
         full_audio = np.concatenate(self.audio_buffer)
 
         self.audio_buffer = []
-        self.speeck_status = False
+        self.speech_status = False
         self.silence_counter = 0
-
         print('запись окончена')
-
         segments,_ = self.whisper_model.transcribe(full_audio,beam_size=5,language='ru')
 
         result = ''
@@ -99,11 +116,11 @@ class Voice_enginer:
             result += segment.text
 
         if result:
-            print(result)
+            print(f'команда отправлена:{result}')  
             mi.defining_invoking_commands(result)
 
 
-    def voise_asistent(self):
+    def voise_assistent(self):
         print('активирована запись с микрофона')
         # активируем запись с микрофона
         self.steam = sd.InputStream(samplerate=SAMPLE_RATE,
@@ -112,6 +129,9 @@ class Voice_enginer:
                                 dtype='float32',
                                 device=1,
                                 callback=self.audio_callback)
-        self.steam.start()
-
-    
+        
+        if not stats_voise_asistent:
+            self.steam.start()
+            threading.Thread(target=self.worker, daemon= True).start()
+        else:
+            self.steam.stop()
