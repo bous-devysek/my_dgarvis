@@ -17,7 +17,6 @@ list_command = [
     ]
 
 def determination_probabilities(user_query):
-    print(user_query)
     # получение матрицы из запроса
     matrix = vectorizer.transform([' '.join(user_query)])
     # получение списка вероятностей из матрицы
@@ -27,14 +26,15 @@ def determination_probabilities(user_query):
 # распознание команд
 def defining_invoking_commands(user_query):
     print('команда пришла')
+    lemmatiz_query = wp.lemmatization(user_query)
     # определения списка вероятностей 
-    list_probabilities = determination_probabilities(
-        wp.lemmatization(user_query))
+    list_probabilities = determination_probabilities(lemmatiz_query)
     proda = list_probabilities[0]
     # если вероятность каманды больше 70 то выполнить
     id_max = int(proda.argmax())
     if proda[id_max] > 0.7:
         user_command = list_command[id_max]
-        command.call_command(user_command,user_query)
+        print(f'{user_command} {user_query}')
+        command.call_command(user_command,' '.join(lemmatiz_query))
     else:
         print('команда не распознана')

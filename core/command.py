@@ -27,25 +27,23 @@ def open_browser(argument: str) -> None:
 
 
 def call_command(user_command,user_query):
-    COMMAND_REGISTRY[user_command](user_query)
+    print(f"--- ОТЛАДКА ---")
+    print(f"Принятая команда: '{user_command}'")
+    print(f"Принятый запрос: '{user_query}'")
+    print(f"Тип запроса: {type(user_query)}")
+    print(f"---------------")
+    
+    if user_command in COMMAND_REGISTRY:
+        COMMAND_REGISTRY[user_command](user_query)
+    else:
+        print(f"Ошибка: Команды '{user_command}' нет в реестре!")
 
 
 # -------------------Реестр---------------------
-COMMAND_REGISTRY = {
-
-    "run_application": (run_application := lambda query: dispatch(query)),
-    "system_command": (lambda query : print('не реализовано'))
-                        
-}
-
-WORD_ACTIONS = {
-    **{name: ("game", name) for name in ID_STEAM_GAME},
-    **{name: ("browser", name) for name in BROWSER_URLS},
-}
-
 def dispatch(user_query: str) -> None:
     for word in user_query.split():
         action = WORD_ACTIONS.get(word)
+        print(f'проверяемое слово{action}')
         if action is None:
             continue
         kind, argument = action
@@ -59,4 +57,17 @@ def dispatch(user_query: str) -> None:
 
 def system_command():
     pass
+
+
+COMMAND_REGISTRY = {
+    "run_application": dispatch,
+    "system_command": (lambda query : print('не реализовано'))
+                        
+}
+
+WORD_ACTIONS = {
+    **{name: ("game", name) for name in ID_STEAM_GAME},
+    **{name: ("browser", name) for name in BROWSER_URLS},
+}
+
 
