@@ -1,3 +1,2 @@
 core/faster-whisper-small/model.bin filter=lfs diff=lfs merge=lfs -text
-core/faster-whisper-small/** linguist-vendor=true
-
+core/faster-whisper-small/** linguist-vendored

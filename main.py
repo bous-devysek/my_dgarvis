@@ -2,7 +2,8 @@ import customtkinter as ctk
 import winreg
 import sys
 import json
-from core.voice_engine import Voice_enginer
+import os
+import sounddevice as sd
 
 ctk.set_appearance_mode('dark')
 ctk.set_default_color_theme('dark-blue')
@@ -11,9 +12,11 @@ APP_NAME = 'garvis'
 REG_PATH = r'Software\Microsoft\Windows\CurrentVersion\Run'
 
 standard_user_setting = {
-    'name_user':'',
-    'stats_auto_load':0,
+    "name_user":'',
+    "stats_auto_load":0,
+    "input_device": None,
     }
+
 # Основной интерфейс приложения / interface
 class App(ctk.CTk):
     def __init__(self):
@@ -22,7 +25,7 @@ class App(ctk.CTk):
         self.geometry('720x480')
         self.button = ctk.CTkCheckBox(master=self, 
                                   text='auto load program',
-                                  command=self.avto_load)
+                                  command=self.auto_load)
         self.button_start = ctk.CTkButton(master=self,
                                           text = 'start',
                                           command=self.stream_start)
@@ -32,17 +35,22 @@ class App(ctk.CTk):
         else:
             self.button.deselect()
 
+        if not self.temp_data["input_device"]:
+            input_device,_ = sd.default.device 
+            self.save_settings("input_device",input_device)
+
 
     #Чтение настроек пользователя/или их создание в противном случае
     def setting(self):
+        path_json = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'setting_user.json')
         try:
-            with open('setting_user.json','r',encoding='utf-8') as file:
+            with open(path_json,'r',encoding='utf-8') as file:
                 self.temp_data = json.load(file)
 
-        except FileNotFoundError or JSONDecodeError:
-            with open('setting_user.json','w',encoding='utf-8') as file:
+        except FileNotFoundError:
+            with open(path_json,'w',encoding='utf-8') as file:
                 json.dump(standard_user_setting,file,indent=4,ensure_ascii=False)
-                self.setting()
+            self.temp_data = standard_user_setting
 
 
     def main_menu(self):
@@ -53,8 +61,8 @@ class App(ctk.CTk):
     #функция отвечающая за запись голоса
     def stream_start(self):
         print('программа начала работу')
-        Voice = Voice_enginer()
-        Voice.voise_asistent()
+        Voice.voise_assistent()
+        
 
 
     # Фукция для изменения состояния автозапуска программы / avto load program
@@ -63,8 +71,11 @@ class App(ctk.CTk):
         status = self.button.get()
         self.save_settings('stats_auto_load',status)
         app_path = f'"{sys.executable}" "{__file__}"'
-        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,REG_PATH,0,winreg.KEY_WRITE)
-        
+        try:
+            key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,REG_PATH,0,winreg.KEY_WRITE)
+        except OSError:
+            pass
+
         if status:  
             winreg.SetValueEx(key,APP_NAME,0,winreg.REG_SZ,app_path)
         else:
@@ -81,11 +92,9 @@ class App(ctk.CTk):
             json.dump(self.temp_data,file,indent=4,ensure_ascii=False)
 
 
-
-
-
 if __name__ == "__main__":
     app = App()
-    app.setting()
+    from core.voice_engine import Voice_enginer
+    Voice = Voice_enginer()
     app.main_menu()
     app.mainloop()
