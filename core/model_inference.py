@@ -2,11 +2,13 @@ import joblib
 import core.word_processing as wp
 import core.command as command
 import numpy as np
-
+from pathlib import Path
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 
-model_data = joblib.load('voice_model.pkl')
+path_model = Path(__file__).resolve().parent.parent / "voice_model.pkl"
+
+model_data = joblib.load('')
 
 vectorizer = model_data['vectorizer']
 clf = model_data['classifier']

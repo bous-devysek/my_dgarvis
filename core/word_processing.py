@@ -24,8 +24,12 @@ def request_filtering(input_text):
 def lemmatization(text):
     print(f'{text}-до лематизации')
     list_words = request_filtering(text)
-    result = [morph.parse(word)[0].normal_form 
-              for word in list_words]
+    result = []
+    for word in list_words:
+        if morph.word_is_known(word):
+            result.append(morph.parse(word)[0].normal_form)
+        else:
+            result.append(word)
     print(f'{result}-после')
     return result
 

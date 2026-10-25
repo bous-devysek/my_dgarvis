@@ -8,6 +8,7 @@ SAMPLE_RATE = 16000
 CHANNELS = 1
 BLOCK_SIZE = 512
 CD_TYPE = ''
+HOTWORDS = "Mindustry, Factorio, Deadlock, DOOM, Terraria, Cuphead, Undertale"
 
 q = queue.Queue(maxsize=0)
 stats_voise_asistent = False
@@ -39,7 +40,6 @@ path_setting = Path(__file__).resolve().parent.parent / "setting_user.json"
 # Чтение активного микрофона
 with open(path_setting) as file:
     setting = json.load(file)
-    print(setting)
     input_device = setting["input_device"]
 
 # класс для распознания, обработке и выполнения команд
@@ -109,7 +109,7 @@ class Voice_enginer:
         self.speech_status = False
         self.silence_counter = 0
         print('Запись окончена')
-        segments,_ = self.whisper_model.transcribe(full_audio,beam_size=5,language='ru')
+        segments,_ = self.whisper_model.transcribe(full_audio,beam_size=5, hotwords=HOTWORDS)
 
         result = ''
         for segment in segments:
