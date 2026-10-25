@@ -1,12 +1,11 @@
 import os
+import re
 import ctypes
 
 ID_STEAM_GAME={
     "дот": "570",
     "факторио": "427520",
     "дедлок": "1422450",
-
-    # игры со скриншотов (названия как в Steam)
     "metro 2033 redux": "286690",
     "miside": "2527500",
     "no, i'm not a human": "3180070",
@@ -43,7 +42,6 @@ ID_STEAM_GAME={
     "dorfromantik": "1455840",
     "meccha chameleon": "4704690",
     "payday 2": "218620",
-    "sos ops!": "2475460",
     "the forest": "242760",
     "ark: survival evolved": "346110",
     "barro t23": "2379030",
@@ -61,7 +59,6 @@ ID_STEAM_GAME={
     "hollow knight": "367520",
     "left 4 dead 2": "550",
     "marvel's spider-man remastered": "1817070",
-    
 }
 
 BROWSER_URLS={
@@ -113,22 +110,29 @@ def call_command(user_command,user_query):
         print(f"Ошибка: Команды '{user_command}' нет в реестре!")
 
 
+def _normalize(text: str) -> str:
+    return " ".join(re.sub(r"[^\w\s]", "", text.lower()).split())
+
+
 def dispatch(user_query: str) -> None:
-    for word in user_query.split():
-        print(f'проверяемое слово {word}')
-        action = WORD_ACTIONS.get(word)
-        print(f'результат{action}')
-        print("---------------")
-        if action is None:
+    query = _normalize(user_query)
+    print(f'проверяемый запрос {query}')
+    for phrase in sorted(WORD_ACTIONS, key=lambda key: len(_normalize(key)), reverse=True):
+        normalized_phrase = _normalize(phrase)
+        if not normalized_phrase:
             continue
-        kind, argument = action
+        if not re.search(rf"(?<!\w){re.escape(normalized_phrase)}(?!\w)", query):
+            continue
+        kind, argument = WORD_ACTIONS[phrase]
+        print(f'результат{kind}: {argument}')
+        print("---------------")
         if kind == "game":
             open_steam_game(argument)
         elif kind == "browser":
             open_browser(argument)
         elif kind == "music":
             play_or_pause_music()
-        return  
+        return
     print("ничего не распознано в запросе")
 
 
