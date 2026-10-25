@@ -1,6 +1,5 @@
-import os
-import re
-import ctypes
+import os,re,ctypes
+import rapidfuzz as rap
 
 ID_STEAM_GAME={
     "дот": "570",
@@ -114,9 +113,24 @@ def _normalize(text: str) -> str:
     return " ".join(re.sub(r"[^\w\s]", "", text.lower()).split())
 
 
+def system_command():
+    pass
+
+
+def music_command(user_query: str) -> None:
+    pass
+
+
+_STEAM_BY_NORM = {_normalize(name): name for name in ID_STEAM_GAME}
+
+_TRIGGERS = {"открой", "открыть", "запусти", "запустить", "включи", "включить",
+             "вруби", "врубить", "загрузи", "загрузить", "поиграть", "игра",
+             "пожалуйста","игру"}
+
 def dispatch(user_query: str) -> None:
     query = _normalize(user_query)
-    print(f'проверяемый запрос {query}')
+
+    print(f'текущий запрос: {query}')
     for phrase in sorted(WORD_ACTIONS, key=lambda key: len(_normalize(key)), reverse=True):
         normalized_phrase = _normalize(phrase)
         if not normalized_phrase:
@@ -126,22 +140,37 @@ def dispatch(user_query: str) -> None:
         kind, argument = WORD_ACTIONS[phrase]
         print(f'результат{kind}: {argument}')
         print("---------------")
+        if kind == "browser":
+            open_browser(argument)
+            return
+        if kind == "music":
+            play_or_pause_music()
+            return
         if kind == "game":
             open_steam_game(argument)
-        elif kind == "browser":
-            open_browser(argument)
-        elif kind == "music":
-            play_or_pause_music()
+            return
+
+    query = " ".join(word for word in query.split() if word not in _TRIGGERS)
+    if not query:
+        print("не понял, какую игру открыть")
         return
-    print("ничего не распознано в запросе")
 
+    matches = rap.process.extract(query, _STEAM_BY_NORM.keys(),
+                                  scorer=rap.fuzz.WRatio, limit=2)
+    name, score, _ = matches[0]
+    runner_up = matches[1][1] if len(matches) > 1 else 0
+    print(f'лучший вариант: {name} ({score:.0f}), второй: {runner_up:.0f}')
 
-def system_command():
-    pass
+    if score < 80:                      # мусор не запускаем
+        print("игра не распознана")
+        return
+    if score - runner_up < 8:
+        print(f'не уверен: {name} ({score:.0f}) или {matches[1][0]} ({runner_up:.0f})')
+        return
 
-
-def music_command(user_query: str) -> None:
-    pass
+    print(f'результат {_STEAM_BY_NORM[name]}')
+    print("---------------")
+    open_steam_game(_STEAM_BY_NORM[name])
 
 
 COMMAND_REGISTRY = {
@@ -154,4 +183,3 @@ WORD_ACTIONS = {
     **{name: ("browser", name) for name in BROWSER_URLS},
     **{name:("music", name) for name in MUSIC_OBJECTS},
 }
-

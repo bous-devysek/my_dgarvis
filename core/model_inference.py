@@ -8,7 +8,7 @@ from sklearn.linear_model import LogisticRegression
 
 path_model = Path(__file__).resolve().parent.parent / "voice_model.pkl"
 
-model_data = joblib.load('')
+model_data = joblib.load(path_model)
 
 vectorizer = model_data['vectorizer']
 clf = model_data['classifier']
@@ -36,6 +36,6 @@ def defining_invoking_commands(user_query):
     if proda[id_max] > 0.7:
         user_command = clf.classes_[id_max]
         print(f'{user_command} {user_query}')
-        command.call_command(user_command,' '.join(lemmatiz_query))
+        command.call_command(user_command,user_query)
     else:
         print('команда не распознана')
