@@ -1,14 +1,13 @@
 import os,sys,torch,queue,json,threading
 import sounddevice as sd
 import numpy as np
-import core.model_inference as mi
 from pathlib import Path
+import core.action_definition as ad
 
 SAMPLE_RATE = 16000
 CHANNELS = 1
 BLOCK_SIZE = 512
 CD_TYPE = ''
-HOTWORDS = "Mindustry, Factorio, Deadlock, DOOM, Terraria, Cuphead, Undertale"
 
 q = queue.Queue(maxsize=0)
 stats_voise_asistent = False
@@ -47,8 +46,8 @@ class Voice_enginer:
     # создание основных переменных и распаковка модели
     def __init__(self):
         self.whisper_model = fw.WhisperModel(model_size,
-                     device='cuda',
-                     compute_type='float32')
+                    device='cuda',
+                    compute_type='float32')
 
 
         self.vad_model, self.utils = torch.hub.load(
@@ -73,8 +72,9 @@ class Voice_enginer:
         # Оценивает вероятность того, что говорит человек
         speech_prob = self.vad_model(audio_tensor, SAMPLE_RATE).item()
 
-        # если веротность больше 0.5 то программа начинает запись и оканчивает если пользователь молчит больше 1 сек +-
-        if speech_prob > 0.5:
+        #print(f"-Шанс-что-вы-говорите-{speech_prob*100}%------")
+        # если веротность больше 90% то программа начинает запись и оканчивает если пользователь молчит больше 1 сек +-
+        if speech_prob > 0.9:
             if not self.speech_status:
                 print('Запись идет')
                 self.speech_status = True
@@ -94,7 +94,7 @@ class Voice_enginer:
     def worker(self):
         while True:
             text = q.get()
-            mi.defining_invoking_commands(text)
+            ad.command_processing(text)
             q.task_done()
 
 
@@ -109,7 +109,7 @@ class Voice_enginer:
         self.speech_status = False
         self.silence_counter = 0
         print('Запись окончена')
-        segments,_ = self.whisper_model.transcribe(full_audio,beam_size=5, hotwords=HOTWORDS)
+        segments,_ = self.whisper_model.transcribe(full_audio,beam_size=5)
 
         result = ''
         for segment in segments:
@@ -117,7 +117,7 @@ class Voice_enginer:
 
         if result:
             print(f'команда отправлена:{result}')  
-            mi.defining_invoking_commands(result)
+            ad.command_processing(result)
 
 
     def voise_assistent(self):

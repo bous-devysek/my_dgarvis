@@ -24,11 +24,11 @@ class App(ctk.CTk):
         self.setting()
         self.geometry('720x480')
         self.button = ctk.CTkCheckBox(master=self, 
-                                  text='auto load program',
-                                  command=self.auto_load)
+                                text='auto load program',
+                                command=self.auto_load)
         self.button_start = ctk.CTkButton(master=self,
-                                          text = 'start',
-                                          command=self.stream_start)
+                                        text = 'start',
+                                        command=self.stream_start)
         self.status_asistent = False
         if self.temp_data['stats_auto_load']:
             self.button.select()

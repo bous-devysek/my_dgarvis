@@ -1,0 +1,368 @@
+[
+    {
+        "canonical": "Dota 2",
+        "kind": "game",
+        "value": "570",
+        "aliases": ["дот"]
+    },
+    {
+        "canonical": "Factorio",
+        "kind": "game",
+        "value": "427520",
+        "aliases": ["факторио"]
+    },
+    {
+        "canonical": "Deadlock",
+        "kind": "game",
+        "value": "1422450",
+        "aliases": ["дедлок"]
+    },
+    {
+        "canonical": "Metro 2033 Redux",
+        "kind": "game",
+        "value": "286690",
+        "aliases": []
+    },
+    {
+        "canonical": "MiSide",
+        "kind": "game",
+        "value": "2527500",
+        "aliases": []
+    },
+    {
+        "canonical": "No, I'm not a Human",
+        "kind": "game",
+        "value": "3180070",
+        "aliases": []
+    },
+    {
+        "canonical": "OneShot",
+        "kind": "game",
+        "value": "420530",
+        "aliases": []
+    },
+    {
+        "canonical": "Raft",
+        "kind": "game",
+        "value": "648800",
+        "aliases": []
+    },
+    {
+        "canonical": "Rain World",
+        "kind": "game",
+        "value": "312520",
+        "aliases": []
+    },
+    {
+        "canonical": "Bloons TD 6",
+        "kind": "game",
+        "value": "960090",
+        "aliases": []
+    },
+    {
+        "canonical": "Cuphead",
+        "kind": "game",
+        "value": "268910",
+        "aliases": []
+    },
+    {
+        "canonical": "Devil May Cry HD Collection",
+        "kind": "game",
+        "value": "631510",
+        "aliases": []
+    },
+    {
+        "canonical": "DOOM",
+        "kind": "game",
+        "value": "379720",
+        "aliases": []
+    },
+    {
+        "canonical": "Frostpunk",
+        "kind": "game",
+        "value": "323190",
+        "aliases": []
+    },
+    {
+        "canonical": "Geometry Dash",
+        "kind": "game",
+        "value": "322170",
+        "aliases": []
+    },
+    {
+        "canonical": "Hollow Knight: Silksong",
+        "kind": "game",
+        "value": "1030300",
+        "aliases": []
+    },
+    {
+        "canonical": "Phasmophobia",
+        "kind": "game",
+        "value": "739630",
+        "aliases": []
+    },
+    {
+        "canonical": "War Thunder",
+        "kind": "game",
+        "value": "236390",
+        "aliases": []
+    },
+    {
+        "canonical": "Project Zomboid",
+        "kind": "game",
+        "value": "108600",
+        "aliases": []
+    },
+    {
+        "canonical": "Rust",
+        "kind": "game",
+        "value": "252490",
+        "aliases": []
+    },
+    {
+        "canonical": "Sons Of The Forest",
+        "kind": "game",
+        "value": "1326470",
+        "aliases": []
+    },
+    {
+        "canonical": "tModLoader",
+        "kind": "game",
+        "value": "1281930",
+        "aliases": []
+    },
+    {
+        "canonical": "Detroit: Become Human",
+        "kind": "game",
+        "value": "1222140",
+        "aliases": []
+    },
+    {
+        "canonical": "DOOM: The Dark Ages",
+        "kind": "game",
+        "value": "3017860",
+        "aliases": []
+    },
+    {
+        "canonical": "ULTRAKILL",
+        "kind": "game",
+        "value": "1229490",
+        "aliases": []
+    },
+    {
+        "canonical": "DOOM Eternal",
+        "kind": "game",
+        "value": "782330",
+        "aliases": []
+    },
+    {
+        "canonical": "Mindustry",
+        "kind": "game",
+        "value": "1127400",
+        "aliases": []
+    },
+    {
+        "canonical": "The Coffin of Andy and Leyley",
+        "kind": "game",
+        "value": "2378900",
+        "aliases": []
+    },
+    {
+        "canonical": "Barro F",
+        "kind": "game",
+        "value": "1239260",
+        "aliases": []
+    },
+    {
+        "canonical": "House Flipper",
+        "kind": "game",
+        "value": "613100",
+        "aliases": ["хаус флиппер"]
+    },
+    {
+        "canonical": "A Hat in Time",
+        "kind": "game",
+        "value": "253230",
+        "aliases": []
+    },
+    {
+        "canonical": "R.E.P.O.",
+        "kind": "game",
+        "value": "3241660",
+        "aliases": []
+    },
+    {
+        "canonical": "Terraria",
+        "kind": "game",
+        "value": "105600",
+        "aliases": []
+    },
+    {
+        "canonical": "CARRION",
+        "kind": "game",
+        "value": "953490",
+        "aliases": []
+    },
+    {
+        "canonical": "Dorfromantik",
+        "kind": "game",
+        "value": "1455840",
+        "aliases": []
+    },
+    {
+        "canonical": "MECCHA CHAMELEON",
+        "kind": "game",
+        "value": "4704690",
+        "aliases": []
+    },
+    {
+        "canonical": "PAYDAY 2",
+        "kind": "game",
+        "value": "218620",
+        "aliases": []
+    },
+    {
+        "canonical": "The Forest",
+        "kind": "game",
+        "value": "242760",
+        "aliases": []
+    },
+    {
+        "canonical": "ARK: Survival Evolved",
+        "kind": "game",
+        "value": "346110",
+        "aliases": []
+    },
+    {
+        "canonical": "Barro T23",
+        "kind": "game",
+        "value": "2379030",
+        "aliases": []
+    },
+    {
+        "canonical": "Don't Starve Together",
+        "kind": "game",
+        "value": "322330",
+        "aliases": []
+    },
+    {
+        "canonical": "Euro Truck Simulator 2",
+        "kind": "game",
+        "value": "227300",
+        "aliases": []
+    },
+    {
+        "canonical": "FORTIFY",
+        "kind": "game",
+        "value": "505040",
+        "aliases": []
+    },
+    {
+        "canonical": "Garry's Mod",
+        "kind": "game",
+        "value": "4000",
+        "aliases": []
+    },
+    {
+        "canonical": "Megabonk",
+        "kind": "game",
+        "value": "3405340",
+        "aliases": []
+    },
+    {
+        "canonical": "Sandbox",
+        "kind": "game",
+        "value": "2438020",
+        "aliases": []
+    },
+    {
+        "canonical": "Slime Rancher",
+        "kind": "game",
+        "value": "433340",
+        "aliases": []
+    },
+    {
+        "canonical": "The Farmer Was Replaced",
+        "kind": "game",
+        "value": "2060160",
+        "aliases": []
+    },
+    {
+        "canonical": "Undertale",
+        "kind": "game",
+        "value": "391540",
+        "aliases": []
+    },
+    {
+        "canonical": "Cult of the Lamb",
+        "kind": "game",
+        "value": "1313140",
+        "aliases": []
+    },
+    {
+        "canonical": "Hollow Knight",
+        "kind": "game",
+        "value": "367520",
+        "aliases": []
+    },
+    {
+        "canonical": "Left 4 Dead 2",
+        "kind": "game",
+        "value": "550",
+        "aliases": []
+    },
+    {
+        "canonical": "Marvel's Spider-Man Remastered",
+        "kind": "game",
+        "value": "1817070",
+        "aliases": []
+    },
+    {
+        "canonical": "фаерфокс",
+        "kind": "browser",
+        "value": "https://www.google.com",
+        "aliases": []
+    },
+    {
+        "canonical": "хром",
+        "kind": "browser",
+        "value": "https://www.google.com",
+        "aliases": []
+    },
+    {
+        "canonical": "браузер",
+        "kind": "browser",
+        "value": "https://www.google.com",
+        "aliases": []
+    },
+    {
+        "canonical": "интернет",
+        "kind": "browser",
+        "value": "https://www.google.com",
+        "aliases": []
+    },
+    {
+        "canonical": "ютуб",
+        "kind": "browser",
+        "value": "https://www.youtube.com",
+        "aliases": ["youtube", "ютуба"]
+    },
+    {
+        "canonical": "гитхаб",
+        "kind": "browser",
+        "value": "https://github.com/",
+        "aliases": ["github"]
+    },
+    {
+        "canonical": "roblox",
+        "kind": "browser",
+        "value": "https://www.roblox.com/home",
+        "aliases": []
+    },
+    {
+        "canonical": "музыка",
+        "kind": "music",
+        "value": "play_pause",
+        "aliases": ["трек", "песня", "плейлист", "волна", "альбом"]
+    }
+]

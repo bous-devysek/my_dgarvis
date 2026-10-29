@@ -1,6 +1,5 @@
 import joblib
 import core.word_processing as wp
-import core.command as command
 import numpy as np
 from pathlib import Path
 from sklearn.feature_extraction.text import TfidfVectorizer
