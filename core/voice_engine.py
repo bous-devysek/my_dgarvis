@@ -10,7 +10,6 @@ BLOCK_SIZE = 512
 CD_TYPE = ''
 
 q = queue.Queue(maxsize=0)
-stats_voise_asistent = False
 
 model_size = os.path.join(os.path.dirname(__file__), 'faster-whisper-small')
 import faster_whisper as fw
@@ -73,8 +72,8 @@ class Voice_enginer:
         speech_prob = self.vad_model(audio_tensor, SAMPLE_RATE).item()
 
         #print(f"-Шанс-что-вы-говорите-{speech_prob*100}%------")
-        # если веротность больше 90% то программа начинает запись и оканчивает если пользователь молчит больше 1 сек +-
-        if speech_prob > 0.9:
+        # если веротность больше 50% то программа начинает запись и оканчивает если пользователь молчит больше 1 сек +-
+        if speech_prob > 0.5:
             if not self.speech_status:
                 print('Запись идет')
                 self.speech_status = True
@@ -109,7 +108,7 @@ class Voice_enginer:
         self.speech_status = False
         self.silence_counter = 0
         print('Запись окончена')
-        segments,_ = self.whisper_model.transcribe(full_audio,beam_size=5)
+        segments,_ = self.whisper_model.transcribe(full_audio,beam_size=5,language='ru')
 
         result = ''
         for segment in segments:
@@ -120,18 +119,22 @@ class Voice_enginer:
             ad.command_processing(result)
 
 
-    def voise_assistent(self):
-        print('активирована запись с микрофона')
-        # активируем запись с микрофона
-        self.steam = sd.InputStream(samplerate=SAMPLE_RATE,
+    def voise_assistent(self,stats_voise_asistent):
+        # активируем запись с микрофона                               
+        if stats_voise_asistent:
+            self.steam = sd.InputStream(samplerate=SAMPLE_RATE,
                                 channels=CHANNELS,
                                 blocksize=BLOCK_SIZE,
                                 dtype='float32',
                                 device=input_device,
                                 callback=self.audio_callback)
-        
-        if not stats_voise_asistent:
+            
             self.steam.start()
+            self.is_running = True
+            print('Активирована запись с микрофона')
             threading.Thread(target=self.worker, daemon= True).start()
         else:
             self.steam.stop()
+            self.steam.close()
+            self.is_running = False
+            print('Запись с микрофона закончена')

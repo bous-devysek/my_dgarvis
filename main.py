@@ -26,10 +26,9 @@ class App(ctk.CTk):
         self.button = ctk.CTkCheckBox(master=self, 
                                 text='auto load program',
                                 command=self.auto_load)
-        self.button_start = ctk.CTkButton(master=self,
+        self.swith = ctk.CTkSwitch(master=self,
                                         text = 'start',
                                         command=self.stream_start)
-        self.status_asistent = False
         if self.temp_data['stats_auto_load']:
             self.button.select()
         else:
@@ -55,14 +54,13 @@ class App(ctk.CTk):
 
     def main_menu(self):
         self.button.place(x=50,y=400-10)
-        self.button_start.place(x=450,y=400-10)
+        self.swith.place(x=450,y=400-10)
 
 
     #функция отвечающая за запись голоса
     def stream_start(self):
-        print('программа начала работу')
-        Voice.voise_assistent()
-        
+        self.status_asistent = self.swith.get()
+        Voice.voise_assistent(self.status_asistent)
 
 
     # Фукция для изменения состояния автозапуска программы / avto load program

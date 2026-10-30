@@ -146,8 +146,8 @@ def detect_intent(user_query: str) -> str|None:
             intent,score,trigger = best
             print(f"Интент: {intent}")
             return intent
-    with open("misunderstood intents","a",encoding="utf-8") as file:
-        file.write(query)
+    with open("misunderstood_intents","a",encoding="utf-8") as file:
+        file.write(f'{query} ')
     print(f"По запросу {query} не распознано ни 1 интета")
 
 def command_processing(user_query:str) -> None:
@@ -160,7 +160,7 @@ def command_processing(user_query:str) -> None:
     match = VOCAB.resolve(strip_triggers(user_query))          # resolve из прошлого обсуждения
     if match is None:
         with open("misunderstood_request","a",encoding="utf-8") as file:
-            file.write(user_query)
+            file.write(f'{user_query} ')
         print("не понял, что открыть")
         return
 

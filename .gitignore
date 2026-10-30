@@ -3,3 +3,5 @@ __pycache__/
 *$py.class
 .pytest_cache/
 setting_user.json
+misunderstood_intents.json
+misunderstood_request.json
