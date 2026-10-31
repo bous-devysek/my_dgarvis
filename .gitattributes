@@ -1,2 +1,10 @@
 core/faster-whisper-small/model.bin filter=lfs diff=lfs merge=lfs -text
 core/faster-whisper-small/** linguist-vendored
+
+# Vosk-модель лежит в репозитории обычными файлами (не LFS), но:
+#   linguist-vendored / linguist-generated / linguist-detectable=false
+#       -> GitHub не учитывает её в статистике языков репозитория;
+#   binary (-diff -merge -text)
+#       -> в диффах и статистике правок это бинарник, а не текст.
+core/vosk-model-small-ru-0.22/** linguist-vendored linguist-generated linguist-detectable=false
+core/vosk-model-small-ru-0.22/** binary
