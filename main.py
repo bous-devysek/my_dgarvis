@@ -12,7 +12,7 @@ APP_NAME = 'garvis'
 REG_PATH = r'Software\Microsoft\Windows\CurrentVersion\Run'
 
 standard_user_setting = {
-    "name_user":'',
+    "name_asistet":'джарвис',
     "stats_auto_load":0,
     "input_device": None,
     }
@@ -22,17 +22,23 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.setting()
-        self.geometry('720x480')
-        self.button = ctk.CTkCheckBox(master=self, 
+        self.geometry('250x250')
+        self.chek_box = ctk.CTkCheckBox(master=self, 
                                 text='auto load program',
                                 command=self.auto_load)
         self.swith = ctk.CTkSwitch(master=self,
-                                        text = 'start',
+                                        text = 'status',
                                         command=self.stream_start)
+        self.entry = ctk.CTkEntry(master=self,
+                                    placeholder_text=
+                                    "придумайте имя")
+        self.button_chek = ctk.CTkButton(master=self,
+                                    text="отправить",
+                                    command=self.chek_status_entry)
         if self.temp_data['stats_auto_load']:
-            self.button.select()
+            self.chek_box.select()
         else:
-            self.button.deselect()
+            self.chek_box.deselect()
 
         if not self.temp_data["input_device"]:
             input_device,_ = sd.default.device 
@@ -53,8 +59,17 @@ class App(ctk.CTk):
 
 
     def main_menu(self):
-        self.button.place(x=50,y=400-10)
-        self.swith.place(x=450,y=400-10)
+        self.chek_box.pack(padx=5,pady=20)
+        self.swith.pack(padx=5,pady=20)
+        self.entry.pack(padx=5,pady=10)
+        self.button_chek.pack(padx=5,pady=5)
+
+
+    def chek_status_entry(self):
+        name_asistent = self.entry.get()
+        if name_asistent != "":
+            print(f"Новое имя {name_asistent}")
+            self.save_settings("name_asistet", name_asistent) 
 
 
     #функция отвечающая за запись голоса
@@ -66,7 +81,7 @@ class App(ctk.CTk):
     # Фукция для изменения состояния автозапуска программы / avto load program
     def auto_load(self):
         print('статус auto-load изменен')
-        status = self.button.get()
+        status = self.chek_box.get()
         self.save_settings('stats_auto_load',status)
         app_path = f'"{sys.executable}" "{__file__}"'
         try:

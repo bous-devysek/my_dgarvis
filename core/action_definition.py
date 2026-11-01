@@ -12,6 +12,10 @@ _TRIGGER_RUN_APPLICATION = frozenset({
     "открою"," вкроить"
 })
 
+_TRIGGER_CLOSE_APPLICATION = frozenset({
+    "закрой","закрыть","выключи","выключить",
+    "отключи","отключить","закрою","выруби","вырубать",
+})
 _INTENTS = {
     "run_application": _TRIGGER_RUN_APPLICATION,
     #"close_application":_TRIGER_CLOSE_APPLICATION,
@@ -45,13 +49,18 @@ def strip_triggers(text: str) -> str:
     words = _normalize(text).split()
     return " ".join(w for w in words if w not in _TRIGGER_RUN_APPLICATION)
 
-#------------------------Данные---------------------------------
+#---------------------------------------------------------------
+#Путь к данным
+#---------------------------------------------------------------
+
 DATA_PATH = Path(__file__).resolve().parent.parent /"data"/"entities.json"
 with open(DATA_PATH,encoding="utf-8-sig") as file:
     DATA = json.load(file)
+
+#---------------------------------------------------------------
+#Модель данных 
 #---------------------------------------------------------------
 
-#---------------------Создание-модели-данных--------------------
 @dataclass(frozen=True)
 class Entity:
     canonical:str
@@ -115,9 +124,11 @@ class Vocabulary:
         return ranked[0][0], ranked[0][1], runner
 
 VOCAB = Vocabulary(load())
+
+#----------------------------------------------------------------
+#Обработка-команд
 #----------------------------------------------------------------
 
-#---------------------Обработка-команд--------------------------
 def detect_intent(user_query: str) -> str|None:
     print("------Обработка-команды------")
     query = _normalize(user_query)
@@ -166,4 +177,3 @@ def command_processing(user_query:str) -> None:
 
     entity, score, runner = match
     HANDLERS[entity.kind](entity)
-#---------------------------------------------------------------

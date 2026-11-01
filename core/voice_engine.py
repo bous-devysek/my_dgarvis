@@ -91,11 +91,12 @@ with open(SETTINGS_PATH, encoding="utf-8") as file:
 # ---------------------------------------------------------------------------
 # Wake word (заготовка)
 # ---------------------------------------------------------------------------
+with open(SETTINGS_PATH,encoding="utf-8") as file:
+    name_asistent = json.load(file)["name_asistet"]
 
 WAKE_PHRASES = [
-    "привет джарвис",
-    "привет джарвис слушай",
-    "джарвис",
+    f"привет {name_asistent}",
+    f"{name_asistent}",
 ]
 
 wake_model = Model(str(VOSK_MODEL_DIR))
