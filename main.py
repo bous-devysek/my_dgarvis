@@ -86,6 +86,7 @@ class App(ctk.CTk):
         name_asistent = self.entry.get()
         if name_asistent != "":
             print(f"Новое имя {name_asistent}")
+            name_asistent = name_asistent.lower()
             self.save_settings("name_asistet", name_asistent) 
 
 

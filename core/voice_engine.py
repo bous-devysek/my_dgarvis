@@ -38,7 +38,7 @@ BLOCK_SIZE = 512            # 512 сэмплов = 32 мс при 16 кГц
 
 SPEECH_THRESHOLD = 0.5      # Silero VAD: выше порога кадр считается речью
 SILENCE_BLOCKS = 34         # 34 * 32 мс ≈ 1.1 с тишины завершают фразу
-WAKE_TIMEOUT = 10.0         # Время ожидания команды
+WAKE_TIMEOUT = 20.0         # Время ожидания команды
 
 # ---------------------------------------------------------------------------
 # Пути
@@ -154,6 +154,11 @@ class Voice_enginer:
             self.wake_word = False
             wake_rec.Reset()
 
+
+    def prolongation(self) -> None:
+        self._wake_deadline  = time.monotonic() + WAKE_TIMEOUT
+
+
     def audio_callback(self, indata, frames_count, time_info, status) -> None:
         """Колбэк sounddevice: получает один блок аудио и решает, что с ним делать.
 
@@ -172,6 +177,8 @@ class Voice_enginer:
                 self.wake_word = True
                 self._wake_deadline = time.monotonic() + WAKE_TIMEOUT
                 wake_rec.Reset()
+
+        self._check_wake_timeout()
 
         if speech_prob > SPEECH_THRESHOLD and self.wake_word:
             self._buffer_speech(audio_frame)
@@ -214,7 +221,6 @@ class Voice_enginer:
         full_audio = np.concatenate(self.audio_buffer)
 
         self._reset_capture()
-        self.wake_word = False
         print("Запись окончена")
 
         segments, _ = self.whisper_model.transcribe(
