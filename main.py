@@ -4,6 +4,7 @@ import sys
 import json
 import os
 import sounddevice as sd
+import threading
 
 ctk.set_appearance_mode('dark')
 ctk.set_default_color_theme('dark-blue')
@@ -17,7 +18,10 @@ standard_user_setting = {
     "input_device": None,
     }
 
-# Основной интерфейс приложения / interface
+#---------------------------------------------------------------
+#Интерфейс приложения / interface
+#---------------------------------------------------------------
+
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -43,6 +47,19 @@ class App(ctk.CTk):
         if not self.temp_data["input_device"]:
             input_device,_ = sd.default.device 
             self.save_settings("input_device",input_device)
+
+        self.voice = None
+        self.status = ctk.CTkLabel(self, text="загружаю модель…")
+        self.status.pack()
+        threading.Thread(target=self._load_voice, daemon=True).start()
+
+    def _load_voice(self):
+        from core.voice_engine import Voice_enginer
+        try:
+            self.voice = Voice_enginer()
+            self.after(0, lambda: self.status.configure(text="готов"))
+        except Exception as exc:
+            self.after(0, lambda: self.status.configure(text=f"ошибка: {exc}"))
 
 
     #Чтение настроек пользователя/или их создание в противном случае
@@ -75,7 +92,7 @@ class App(ctk.CTk):
     #функция отвечающая за запись голоса
     def stream_start(self):
         self.status_asistent = self.swith.get()
-        Voice.voise_assistent(self.status_asistent)
+        self.voice.voise_assistent(self.status_asistent)
 
 
     # Фукция для изменения состояния автозапуска программы / avto load program
@@ -107,7 +124,5 @@ class App(ctk.CTk):
 
 if __name__ == "__main__":
     app = App()
-    from core.voice_engine import Voice_enginer
-    Voice = Voice_enginer()
     app.main_menu()
     app.mainloop()

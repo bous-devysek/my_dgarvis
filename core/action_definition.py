@@ -12,18 +12,25 @@ _TRIGGER_RUN_APPLICATION = frozenset({
     "открою"," вкроить"
 })
 
-_TRIGGER_CLOSE_APPLICATION = frozenset({
+_TRIGER_CLOSE_APPLICATION = frozenset({
     "закрой","закрыть","выключи","выключить",
     "отключи","отключить","закрою","выруби","вырубать",
 })
+
 _INTENTS = {
     "run_application": _TRIGGER_RUN_APPLICATION,
-    #"close_application":_TRIGER_CLOSE_APPLICATION,
+    "close_application":_TRIGER_CLOSE_APPLICATION,
 }
 
-HANDLERS = {
+OPEN_HANDLERS = {
     "game": lambda e: os.startfile(f"steam://run/{e.value}"),
     "browser": lambda e: os.startfile(e.value),
+    "music": lambda e: play_or_pause_music(),
+}
+
+CLOSE_HANDLERS = {
+    "game": lambda e: os.system(f"taskkill /f /im {e.process_name}"),
+    "browser":lambda e:e.process_name,
     "music": lambda e: play_or_pause_music(),
 }
 
@@ -66,6 +73,7 @@ class Entity:
     canonical:str
     kind:str
     value:str
+    process_name:str
     aliases:tuple[str,...] = ()
 
 
@@ -76,6 +84,7 @@ def load() -> list[Entity]:
         entities.append(Entity(item["canonical"],
                             item["kind"],
                             item["value"],
+                            item["process_name"],
                             tuple(item["aliases"])))
     return entities
 
@@ -157,23 +166,21 @@ def detect_intent(user_query: str) -> str|None:
             intent,score,trigger = best
             print(f"Интент: {intent}")
             return intent
-    with open("misunderstood_intents","a",encoding="utf-8") as file:
-        file.write(f'{query} ')
     print(f"По запросу {query} не распознано ни 1 интета")
 
 def command_processing(user_query:str) -> None:
     user_query = " ".join(wp.lemmatization(user_query))
     command = detect_intent(user_query)
-    if command != "run_application":
+    if command not in _INTENTS.keys():
         print("команда не распознана")
         return
-
     match = VOCAB.resolve(strip_triggers(user_query))          # resolve из прошлого обсуждения
     if match is None:
-        with open("misunderstood_request","a",encoding="utf-8") as file:
-            file.write(f'{user_query} ')
         print("не понял, что открыть")
         return
 
     entity, score, runner = match
-    HANDLERS[entity.kind](entity)
+    if command == "run_application":
+        OPEN_HANDLERS[entity.kind](entity)
+    elif command == "close_application":
+        CLOSE_HANDLERS[entity.kind](entity)
