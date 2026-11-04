@@ -11,16 +11,21 @@
 - +- 3,5 ГБ на диске
 
 ## Установка
+Создайте папку, откройте её в PowerShell и выполните:
 
-#создаете папку и заходите от её пути в powershell
+```powershell
 git clone https://github.com/bous-devysek/my_dgarvis.git
 cd my_dgarvis
 py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-pip install -r requirements.txt   
+pip install -r requirements.txt
 python download_model.py
+```
 
-После скачивания надо кликнуть 2 раза по файлу run_console.bat (консоль можно свернуть, но не закрыть)
+После скачивания модели запустите `run_console.bat` двойным кликом
+(консоль можно свернуть, но не закрывать).
+
 
 Дождитесь надписи «готов», включите тумблер и скажи «Джарвис». Дальше 20 секунд можно говорить команды без имени; окно продлевается после каждой команды.
 
