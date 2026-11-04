@@ -11,6 +11,7 @@
     5. распознанный текст передаётся в ``core.action_definition``.
 """
 
+import ctypes
 import json
 import os
 import queue
@@ -27,6 +28,7 @@ from vosk import KaldiRecognizer, Model
 
 import core.action_definition as ad
 import faster_whisper as fw
+from silero_vad import load_silero_vad
 
 # ---------------------------------------------------------------------------
 # Аудио
@@ -55,36 +57,36 @@ SETTINGS_PATH = PROJECT_DIR / "setting_user.json"
 # ---------------------------------------------------------------------------
 # Окружение
 # ---------------------------------------------------------------------------
+def _vosk_path(path: Path) -> str:
+    """Vosk на Windows не понимает пути с кириллицей — отдаём 8.3-имя."""
+    if sys.platform != "win32":
+        return str(path)
+    buf = ctypes.create_unicode_buffer(32768)
+    length = ctypes.windll.kernel32.GetShortPathNameW(str(path), buf, len(buf))
+    return buf.value if length else str(path)
+
+
+wake_model = Model(_vosk_path(VOSK_MODEL_DIR))
+
 
 def _register_cuda_dlls() -> None:
-    """Добавляет DLL cuBLAS/cuDNN из user-site в PATH (нужно только на Windows)."""
     if sys.platform != "win32":
         return
 
-    user_packages = site.getusersitepackages()
-    for package in ("cudnn", "cublas"):
-        dll_dir = os.path.join(user_packages, "nvidia", package, "bin")
-        if os.path.exists(dll_dir):
-            os.environ["PATH"] = dll_dir + os.pathsep + os.environ.get("PATH", "")
-            os.add_dll_directory(dll_dir)
-
-
-def _silero_vad_repo() -> str:
-    """Ищет silero-vad: папка core/silero-vad -> кэш torch.hub -> GitHub."""
-    local_repo = CORE_DIR / "silero-vad"
-    if (local_repo / "hubconf.py").exists():
-        return str(local_repo)
-
-    hub_cache = Path.home() / ".cache" / "torch" / "hub" / "snakers4_silero-vad_master"
-    if (hub_cache / "hubconf.py").exists():
-        return str(hub_cache)
-
-    return "snakers4/silero-vad"
+    roots = {site.getusersitepackages(), *site.getsitepackages(), sys.prefix}
+    for root in roots:
+        for package in ("cudnn", "cublas"):
+            dll_dir = Path(root) / "nvidia" / package / "bin"
+            if not dll_dir.is_dir():
+                continue
+            os.environ["PATH"] = str(dll_dir) + os.pathsep + os.environ.get("PATH", "")
+            try:
+                os.add_dll_directory(str(dll_dir))
+            except OSError:
+                pass
 
 
 _register_cuda_dlls()
-SILERO_VAD_REPO = _silero_vad_repo()
-
 with open(SETTINGS_PATH, encoding="utf-8") as file:
     INPUT_DEVICE = json.load(file)["input_device"]
 
@@ -99,7 +101,6 @@ WAKE_PHRASES = [
     f"{name_asistent}",
 ]
 
-wake_model = Model(str(VOSK_MODEL_DIR))
 wake_rec = KaldiRecognizer(wake_model, SAMPLE_RATE)
 
 # Очередь команд: сейчас её никто не наполняет, поток _worker() ждёт вхолостую.
@@ -130,19 +131,9 @@ class Voice_enginer:
             compute_type="int8_float16",
         )
 
-        self.vad_model, self.vad_utils = torch.hub.load(
-            source="local",
-            repo_or_dir=SILERO_VAD_REPO,
-            model="silero_vad",
-        )
-        (
-            self.get_speech_timestamps,
-            _,
-            self.read_audio,
-            _,
-            _,
-        ) = self.vad_utils
         self.wake_word = False
+        self.vad_model = load_silero_vad()
+        self._wake_deadline = 0.0
         self._reset_capture()
         print("Все готово к работе")
 
@@ -231,6 +222,7 @@ class Voice_enginer:
 
         if result:
             print(f"команда отправлена:{result}")
+            self.prolongation()
             ad.command_processing(result)
 
     def _worker(self) -> None:
@@ -262,4 +254,8 @@ class Voice_enginer:
             self._stream.stop()
             self._stream.close()
             self.is_running = False
+            self.wake_word = False
+            self._wake_deadline = 0.0
+            self._reset_capture()
+            wake_rec.Reset()
             print("Запись с микрофона закончена")

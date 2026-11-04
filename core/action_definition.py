@@ -17,6 +17,8 @@ _TRIGER_CLOSE_APPLICATION = frozenset({
     "отключи","отключить","закрою","выруби","вырубать",
 })
 
+# FIXME: При попытке закрыть браузер ничего не просходит
+
 _INTENTS = {
     "run_application": _TRIGGER_RUN_APPLICATION,
     "close_application":_TRIGER_CLOSE_APPLICATION,

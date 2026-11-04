@@ -5,3 +5,4 @@
 #       -> в диффах и статистике правок это бинарник, а не текст.
 core/vosk-model-small-ru-0.22/** linguist-vendored linguist-generated linguist-detectable=false
 core/vosk-model-small-ru-0.22/** binary
+*.bat text eol=crlf

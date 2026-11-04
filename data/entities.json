@@ -4,7 +4,7 @@
         "kind": "game",
         "value": "570",
         "process_name": "dota2.exe",
-        "aliases": ["дот"]
+        "aliases": ["дот","дота"]
     },
     {
         "canonical": "Factorio",
@@ -88,14 +88,14 @@
         "kind": "game",
         "value": "379720",
         "process_name": "DOOMx64.exe",
-        "aliases": []
+        "aliases": ["дум"]
     },
     {
         "canonical": "Frostpunk",
         "kind": "game",
         "value": "323190",
         "process_name": "Frostpunk.exe",
-        "aliases": []
+        "aliases": ["фростпанк"]
     },
     {
         "canonical": "Geometry Dash",
@@ -116,28 +116,21 @@
         "kind": "game",
         "value": "739630",
         "process_name": "Phasmophobia.exe",
-        "aliases": []
-    },
-    {
-        "canonical": "War Thunder",
-        "kind": "game",
-        "value": "236390",
-        "process_name": "aces.exe",
-        "aliases": []
+        "aliases": ["фазмафобия","фазма фобия"]
     },
     {
         "canonical": "Project Zomboid",
         "kind": "game",
         "value": "108600",
         "process_name": "ProjectZomboid64.exe",
-        "aliases": []
+        "aliases": ["зомбойд"]
     },
     {
         "canonical": "Rust",
         "kind": "game",
         "value": "252490",
         "process_name": "RustClient.exe",
-        "aliases": []
+        "aliases": ["раст"]
     },
     {
         "canonical": "Sons Of The Forest",
@@ -158,7 +151,7 @@
         "kind": "game",
         "value": "1222140",
         "process_name": "DetroitBecomeHuman.exe",
-        "aliases": []
+        "aliases": ["детройд"]
     },
     {
         "canonical": "DOOM: The Dark Ages",
@@ -172,34 +165,27 @@
         "kind": "game",
         "value": "1229490",
         "process_name": "ULTRAKILL.exe",
-        "aliases": []
+        "aliases": ["ультра кил","ультракил"]
     },
     {
         "canonical": "DOOM Eternal",
         "kind": "game",
         "value": "782330",
         "process_name": "DOOMEternalx64vk.exe",
-        "aliases": []
+        "aliases": ["дум этерныл"]
     },
     {
         "canonical": "Mindustry",
         "kind": "game",
         "value": "1127400",
         "process_name": "Mindustry.exe",
-        "aliases": []
+        "aliases": ["миндустри","миндастри"]
     },
     {
         "canonical": "The Coffin of Andy and Leyley",
         "kind": "game",
         "value": "2378900",
         "process_name": "Game.exe",
-        "aliases": []
-    },
-    {
-        "canonical": "Barro F",
-        "kind": "game",
-        "value": "1239260",
-        "process_name": "Barro F.exe",
         "aliases": []
     },
     {
@@ -214,34 +200,27 @@
         "kind": "game",
         "value": "253230",
         "process_name": "HatinTimeGame.exe",
-        "aliases": []
+        "aliases": ["хет тайм"]
     },
     {
         "canonical": "R.E.P.O.",
         "kind": "game",
         "value": "3241660",
         "process_name": "REPO.exe",
-        "aliases": []
+        "aliases": ["репо"]
     },
     {
         "canonical": "Terraria",
         "kind": "game",
         "value": "105600",
         "process_name": "Terraria.exe",
-        "aliases": []
+        "aliases": ["терка","терария"]
     },
     {
         "canonical": "CARRION",
         "kind": "game",
         "value": "953490",
         "process_name": "Carrion.exe",
-        "aliases": []
-    },
-    {
-        "canonical": "Dorfromantik",
-        "kind": "game",
-        "value": "1455840",
-        "process_name": "Dorfromantik.exe",
         "aliases": []
     },
     {
@@ -256,42 +235,35 @@
         "kind": "game",
         "value": "218620",
         "process_name": "payday2_win32_release.exe",
-        "aliases": []
+        "aliases": ["пейдей","пейдей"]
     },
     {
         "canonical": "The Forest",
         "kind": "game",
         "value": "242760",
         "process_name": "TheForest.exe",
-        "aliases": []
+        "aliases": ["зе форест","форест"]
     },
     {
         "canonical": "ARK: Survival Evolved",
         "kind": "game",
         "value": "346110",
         "process_name": "ShooterGame.exe",
-        "aliases": []
-    },
-    {
-        "canonical": "Barro T23",
-        "kind": "game",
-        "value": "2379030",
-        "process_name": "Barro T23.exe",
-        "aliases": []
+        "aliases": ["арк"]
     },
     {
         "canonical": "Don't Starve Together",
         "kind": "game",
         "value": "322330",
         "process_name": "dontstarve_steam_x64.exe",
-        "aliases": []
+        "aliases": ["донт старв"]
     },
     {
         "canonical": "Euro Truck Simulator 2",
         "kind": "game",
         "value": "227300",
         "process_name": "eurotrucks2.exe",
-        "aliases": []
+        "aliases": ["евро трак"]
     },
     {
         "canonical": "FORTIFY",
@@ -305,70 +277,63 @@
         "kind": "game",
         "value": "4000",
         "process_name": "gmod.exe",
-        "aliases": []
+        "aliases": ["гарис мод"]
     },
     {
         "canonical": "Megabonk",
         "kind": "game",
         "value": "3405340",
         "process_name": "Megabonk.exe",
-        "aliases": []
+        "aliases": ["мегабонк"]
     },
     {
         "canonical": "Sandbox",
         "kind": "game",
         "value": "2438020",
         "process_name": "Sandbox .exe",
-        "aliases": []
+        "aliases": ["сендбокс"]
     },
     {
         "canonical": "Slime Rancher",
         "kind": "game",
         "value": "433340",
         "process_name": "SlimeRancher.exe",
-        "aliases": []
-    },
-    {
-        "canonical": "The Farmer Was Replaced",
-        "kind": "game",
-        "value": "2060160",
-        "process_name": "TheFarmerWasReplaced.exe",
-        "aliases": []
+        "aliases": ["слайм ренчер"]
     },
     {
         "canonical": "Undertale",
         "kind": "game",
         "value": "391540",
         "process_name": "UNDERTALE.exe",
-        "aliases": []
+        "aliases": ["андертейл"]
     },
     {
         "canonical": "Cult of the Lamb",
         "kind": "game",
         "value": "1313140",
         "process_name": "Cult Of The Lamb.exe",
-        "aliases": []
+        "aliases": ["культ овечки","куль ламб"]
     },
     {
         "canonical": "Hollow Knight",
         "kind": "game",
         "value": "367520",
         "process_name": "hollow_knight.exe",
-        "aliases": []
+        "aliases": ["холовнайт","холов кнайт","холовкнайт"]
     },
     {
         "canonical": "Left 4 Dead 2",
         "kind": "game",
         "value": "550",
         "process_name": "left4dead2.exe",
-        "aliases": []
+        "aliases": ["лет фо дет"]
     },
     {
         "canonical": "Marvel's Spider-Man Remastered",
         "kind": "game",
         "value": "1817070",
         "process_name": "Spider-Man.exe",
-        "aliases": []
+        "aliases": ["человек паук"]
     },
     {
         "canonical": "браузер",
@@ -389,14 +354,14 @@
         "kind": "browser",
         "value": "https://github.com/",
         "process_name": " ",
-        "aliases": ["github","гитхоп"]
+        "aliases": ["github","гитхоп","гит","гитхаб"]
     },
     {
         "canonical": "roblox",
         "kind": "browser",
         "value": "https://www.roblox.com/home",
         "process_name": " ",
-        "aliases": []
+        "aliases": ["роблокс"]
     },
     {
         "canonical": "музыка",

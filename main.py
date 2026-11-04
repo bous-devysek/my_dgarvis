@@ -3,6 +3,7 @@ import winreg
 import sys
 import json
 import os
+from pathlib import Path
 import sounddevice as sd
 import threading
 
@@ -11,6 +12,7 @@ ctk.set_default_color_theme('dark-blue')
 
 APP_NAME = 'garvis'
 REG_PATH = r'Software\Microsoft\Windows\CurrentVersion\Run'
+SETTINGS_PATH = Path(__file__).resolve().parent / "setting_user.json"
 
 standard_user_setting = {
     "name_asistet":'джарвис',
@@ -101,7 +103,7 @@ class App(ctk.CTk):
         print('статус auto-load изменен')
         status = self.chek_box.get()
         self.save_settings('stats_auto_load',status)
-        app_path = f'"{sys.executable}" "{__file__}"'
+        app_path = f'"{sys.executable}" "{Path(__file__).resolve()}"'
         try:
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,REG_PATH,0,winreg.KEY_WRITE)
         except OSError:
@@ -119,7 +121,7 @@ class App(ctk.CTk):
 
     def save_settings(self,name_setting,status_setting):
         self.temp_data[name_setting] = status_setting
-        with open ('setting_user.json','w',encoding='utf-8') as file:
+        with open (SETTINGS_PATH,'w',encoding='utf-8') as file:
             json.dump(self.temp_data,file,indent=4,ensure_ascii=False)
 
 
