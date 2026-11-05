@@ -18,7 +18,7 @@
 winget install --id Git.Git -e --source winget
 git clone https://github.com/bous-devysek/my_dgarvis.git
 cd my_dgarvis
-py -3.14 -m venv .venv
+winget install Python.Python.3.14
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
