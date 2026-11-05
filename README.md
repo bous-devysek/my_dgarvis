@@ -15,6 +15,7 @@
 Советую скачать python 3.14
 
 ```powershell
+winget install --id Git.Git -e --source winget
 git clone https://github.com/bous-devysek/my_dgarvis.git
 cd my_dgarvis
 py -3.14 -m venv .venv
