@@ -5,7 +5,7 @@
 **Статус: alpha.** Только Windows 11 x64, рус яз.
 
 ## sistem требования
-- Python 3.12–3.14 (рекомендуется 3.12)
+- Python 3.12–3.14 (рекомендуется 3.14)
 - 16 ГБ желательно (програма потребляет +- 1.1 гб)
 - NVIDIA GPU с 4 ГБ VRAM(мин)
 - +- 3,5 ГБ на диске
@@ -17,7 +17,7 @@
 ```powershell
 git clone https://github.com/bous-devysek/my_dgarvis.git
 cd my_dgarvis
-py -3.12 -m venv .venv
+py -3.14 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
