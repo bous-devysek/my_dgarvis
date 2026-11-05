@@ -11,7 +11,8 @@
 - +- 3,5 ГБ на диске
 
 ## Установка
-Создайте папку, откройте её в PowerShell и выполните:
+**Откройте рабочий стол** и там терменал (powershell), после введите команды по нужде:
+Советую скачать python 3.14
 
 ```powershell
 git clone https://github.com/bous-devysek/my_dgarvis.git
@@ -22,6 +23,11 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 python download_model.py
 ```
+
+если у вас уже есть питон версии > 3.11 то скачивать не надо
+
+если загрузка происходит адски медлено можно попробывать(меньше 100 кб/с): (работает со скростью 1мб/с)
+git clone git@github.com:bous-devysek/my_dgarvis.git
 
 После скачивания модели запустите `run_console.bat` двойным кликом
 (консоль можно свернуть, но не закрывать).
@@ -40,6 +46,7 @@ python download_model.py
 ### Как добавлять нужные игры или сайты
 Для того чтобы добавить свою игру или сайт надо просто открыть файл data/entities.json и 
 вставить туда такую конструкцию:
+```
     {
         "canonical": "",
         "kind": "",
@@ -47,7 +54,7 @@ python download_model.py
         "process_name": "",
         "aliases": []
     },
-
+```
 1) "canonical" название игры/сайта
 2) "kind" тип элемента ("game","browser","music")
 3) "value" номер игры стим или сылка на сайт
