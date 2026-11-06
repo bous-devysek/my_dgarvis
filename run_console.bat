@@ -2,7 +2,7 @@
 cd /d "%~dp0"
 
 if exist ".venv\Scripts\python.exe" (
-    ".venv\Scripts\python.exe" main.py
+    ".venv\Scripts\python.exe" app/main.py
 ) else (
     where python >nul 2>nul
     if errorlevel 1 (
@@ -11,7 +11,7 @@ if exist ".venv\Scripts\python.exe" (
         pause
         exit /b 1
     )
-    python main.py
+    python app/main.py
 )
 
 echo.

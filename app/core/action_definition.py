@@ -1,7 +1,7 @@
 from rapidfuzz import fuzz,process
 from dataclasses import dataclass
 from pathlib import Path
-import app.core.word_processing as wp
+import core.word_processing as wp
 import re,json,os,ctypes
 
 
@@ -62,11 +62,11 @@ def strip_triggers(text: str) -> str:
 #Путь к данным
 #---------------------------------------------------------------
 
-DATA_PATH_USER = Path(__file__).resolve().parent.parent /"data"/"entities.json"
+DATA_PATH_USER = Path(__file__).resolve().parent.parent.parent /"data"/"entities.json"
 with open(DATA_PATH_USER,encoding="utf-8-sig") as file:
     DATA_USEUR = json.load(file)
 
-DATA_PATH_DEFAULT = Path(__file__).resolve().parent.parent /"data"/"entities.default.json"
+DATA_PATH_DEFAULT = Path(__file__).resolve().parent.parent.parent /"data"/"entities.default.json"
 with open(DATA_PATH_DEFAULT,encoding="utf-8-sig") as file:
     DATA_DEFAULT = json.load(file)
 

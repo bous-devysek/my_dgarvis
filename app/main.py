@@ -12,7 +12,7 @@ ctk.set_default_color_theme('dark-blue')
 
 APP_NAME = 'garvis'
 REG_PATH = r'Software\Microsoft\Windows\CurrentVersion\Run'
-SETTINGS_PATH = Path(__file__).resolve().parent / "setting_user.json"
+SETTINGS_PATH = Path(__file__).resolve().parent.parent / "config" /"setting_user.json"
 
 standard_user_setting = {
     "name_asistet":'джарвис',
@@ -56,12 +56,12 @@ class App(ctk.CTk):
         threading.Thread(target=self._load_voice, daemon=True).start()
 
     def _load_voice(self):
-        from app.core.voice_engine import Voice_enginer
+        from core.voice_engine import Voice_enginer
         try:
             self.voice = Voice_enginer()
             self.after(0, lambda: self.status.configure(text="готов"))
         except Exception as exc:
-            self.after(0, lambda: self.status.configure(text=f"ошибка: {exc}"))
+            self.after(0, lambda e=exc: self.status.configure(text=f"ошибка: {e}"))
 
 
     #Чтение настроек пользователя/или их создание в противном случае

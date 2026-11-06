@@ -26,7 +26,7 @@ import sounddevice as sd
 import torch
 from vosk import KaldiRecognizer, Model
 
-import app.core.action_definition as ad
+import core.action_definition as ad
 import faster_whisper as fw
 from silero_vad import load_silero_vad
 
@@ -46,12 +46,12 @@ WAKE_TIMEOUT = 20.0         # Время ожидания команды
 # Пути
 # ---------------------------------------------------------------------------
 
-CORE_DIR = Path(__file__).resolve().parent
+CORE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_DIR = CORE_DIR.parent
 
-WHISPER_MODEL_DIR = CORE_DIR / "faster-whisper-large-v3-turbo-ct2"
-VOSK_MODEL_DIR = CORE_DIR / "vosk-model-small-ru-0.22"
-SETTINGS_PATH = PROJECT_DIR / "setting_user.json"
+WHISPER_MODEL_DIR = CORE_DIR.parent / "models" / "faster-whisper-large-v3-turbo-ct2"
+VOSK_MODEL_DIR = PROJECT_DIR / "models" / "vosk-model-small-ru-0.22"
+SETTINGS_PATH = PROJECT_DIR / "config" / "setting_user.json"
 
 
 # ---------------------------------------------------------------------------
