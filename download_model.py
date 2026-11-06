@@ -1,7 +1,7 @@
 from pathlib import Path
 from huggingface_hub import snapshot_download
 
-TARGET = Path(__file__).resolve().parent / "core" / "faster-whisper-large-v3-turbo-ct2"
+TARGET = Path(__file__).resolve().parent / "models" / "faster-whisper-large-v3-turbo-ct2"
 
 snapshot_download(
     repo_id="deepdml/faster-whisper-large-v3-turbo-ct2",

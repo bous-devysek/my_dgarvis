@@ -58,16 +58,22 @@ Step 'Installing requirements (may take 10-30 minutes)'
 if ($LASTEXITCODE -ne 0) { Fail 'pip install failed' }
 
 # --- 4. модель Whisper --------------------------------------------------
-$modelFile = Join-Path $PSScriptRoot 'core\faster-whisper-large-v3-turbo-ct2\model.bin'
+$modelFile = Join-Path $PSScriptRoot 'models\faster-whisper-large-v3-turbo-ct2\model.bin'
 if (Test-Path -LiteralPath $modelFile) {
     Write-Host 'Whisper model already downloaded'
 } else {
     Step 'Downloading Whisper model (~1.6 GB)'
     & $venvPy (Join-Path $PSScriptRoot 'download_model.py')
     if ($LASTEXITCODE -ne 0) { Fail 'Model download failed' }
+    if (-not (Test-Path -LiteralPath $modelFile)) {
+        Fail 'Whisper model not found after download'
+    }
 }
 
-# --- 5. ярлык на рабочем столе -----------------------------------------
+# --- 5. папка настроек ---------------------------------------------------
+New-Item -ItemType Directory -Force (Join-Path $PSScriptRoot 'config') | Out-Null
+
+# --- 6. ярлык на рабочем столе -----------------------------------------
 Step 'Creating desktop shortcut'
 $desktop = [Environment]::GetFolderPath('Desktop')
 $ws  = New-Object -ComObject WScript.Shell

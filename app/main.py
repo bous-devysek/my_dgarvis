@@ -14,7 +14,7 @@ ctk.set_appearance_mode('dark')
 ctk.set_default_color_theme('dark-blue')
 
 APP_NAME = 'garvis'
-APP_VERSION = "0.0.3"
+APP_VERSION = "0.0.5"
 GITHUB_REPO = "bous-devysek/my_dgarvis"
 GITHUB_RELEASES_API = f"https://api.github.com/repos/{GITHUB_REPO}/releases?per_page=1"
 GITHUB_TAGS_API = f"https://api.github.com/repos/{GITHUB_REPO}/tags?per_page=1"
@@ -53,7 +53,7 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.setting()
-        self.geometry('280x360')
+        self.geometry('280x380')
         self.latest_release = None
         self.chek_box = ctk.CTkCheckBox(master=self, 
                                     text='auto load program',

@@ -1,7 +1,9 @@
 name: Release
+
 on:
   push:
-    tags: ['v*']
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
@@ -9,40 +11,107 @@ permissions:
 jobs:
   release:
     runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Build archives
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check version matches tag
+        shell: pwsh
+        run: |
+          $ver = "${{ github.ref_name }}".TrimStart('v')
+          $source = Get-Content app/main.py -Raw
+
+          if ($source -match 'APP_VERSION\s*=\s*"([^"]+)"') {
+              $appVer = $Matches[1]
+          } else {
+              throw "APP_VERSION not found in app/main.py"
+          }
+
+          if ($appVer -ne $ver) {
+              throw "Tag v$ver does not match APP_VERSION $appVer"
+          }
+
+          Write-Host "Version OK: $appVer"
+
+      - name: Build release archives
         shell: pwsh
         run: |
           $ver = "${{ github.ref_name }}".TrimStart('v')
           New-Item -ItemType Directory -Force dist | Out-Null
 
-          # --- update: только код ---
-          New-Item -ItemType Directory -Force stage | Out-Null
-          Copy-Item main.py, download_model.py, requirements.txt, run_console.bat, `
-                    install.bat, install.ps1, README.md, LICENSE, `
-                    THIRD_PARTY_NOTICES.md, data, core -Destination stage -Recurse
-          Remove-Item stage/core/vosk-model-small-ru-0.22 -Recurse -Force
-          Remove-Item stage/core/faster-whisper-large-v3-turbo-ct2 -Recurse -Force -ErrorAction SilentlyContinue
-          Remove-Item stage/data/entities.json -Force -ErrorAction SilentlyContinue
-          Compress-Archive -Path stage/* -DestinationPath "dist/garvis-$ver-update.zip"
+          # Файлы, которые нужны и для установки, и для обновления.
+          # update.bat сюда не входит: проверка обновлений уже в приложении.
+          $common = @(
+              'download_model.py',
+              'requirements.txt',
+              'run_console.bat',
+              'install.bat',
+              'install.ps1',
+              'README.md',
+              'LICENSE',
+              'THIRD_PARTY_NOTICES.md'
+          )
 
-          # --- full: для первой установки, с Vosk ---
+          # ---------- update: только код ----------
+          New-Item -ItemType Directory -Force stage-update | Out-Null
+
+          Copy-Item app -Destination stage-update -Recurse
+          Get-ChildItem stage-update\app -Recurse -Directory -Filter __pycache__ |
+              Remove-Item -Recurse -Force
+          Remove-Item stage-update\app\setting_user.json -Force -ErrorAction SilentlyContinue
+
+          # Пользовательский entities.json не трогаем, кладём только новые дефолты.
+          New-Item -ItemType Directory -Force stage-update\data | Out-Null
+          Copy-Item data\entities.default.json stage-update\data\
+
+          # Пустая папка, чтобы было куда писать setting_user.json.
+          New-Item -ItemType Directory -Force stage-update\config | Out-Null
+          Set-Content stage-update\config\.gitkeep -Value ''
+
+          Copy-Item $common -Destination stage-update
+
+          Compress-Archive -Path stage-update\* `
+              -DestinationPath "dist/garvis-$ver-update.zip" -Force
+
+          # ---------- full: код + Vosk ----------
           New-Item -ItemType Directory -Force stage-full | Out-Null
-          Copy-Item main.py, download_model.py, requirements.txt, run_console.bat, `
-                    install.bat, install.ps1, README.md, LICENSE, `
-                    THIRD_PARTY_NOTICES.md, data, core -Destination stage-full -Recurse
-          Remove-Item stage-full/core/faster-whisper-large-v3-turbo-ct2 -Recurse -Force -ErrorAction SilentlyContinue
-          Compress-Archive -Path stage-full/* -DestinationPath "dist/garvis-$ver-full.zip"
 
-          Get-FileHash dist/*.zip -Algorithm SHA256 |
-            ForEach-Object { "$($_.Hash)  $(Split-Path $_.Path -Leaf)" } |
-            Set-Content dist/SHA256SUMS.txt
+          Copy-Item app -Destination stage-full -Recurse
+          Get-ChildItem stage-full\app -Recurse -Directory -Filter __pycache__ |
+              Remove-Item -Recurse -Force
+          Remove-Item stage-full\app\setting_user.json -Force -ErrorAction SilentlyContinue
 
-      - uses: softprops/action-gh-release@v2
+          Copy-Item data -Destination stage-full -Recurse
+          Copy-Item models -Destination stage-full -Recurse
+
+          # Whisper не кладём в архив — он скачивается download_model.py.
+          Remove-Item stage-full\models\faster-whisper-large-v3-turbo-ct2 `
+              -Recurse -Force -ErrorAction SilentlyContinue
+
+          New-Item -ItemType Directory -Force stage-full\config | Out-Null
+          Set-Content stage-full\config\.gitkeep -Value ''
+
+          Copy-Item $common -Destination stage-full
+
+          Compress-Archive -Path stage-full\* `
+              -DestinationPath "dist/garvis-$ver-full.zip" -Force
+
+          # ---------- контрольные суммы ----------
+          Get-FileHash dist\*.zip -Algorithm SHA256 |
+              ForEach-Object {
+                  "{0}  {1}" -f $_.Hash.ToLower(), (Split-Path $_.Path -Leaf)
+              } |
+              Set-Content dist\SHA256SUMS.txt -Encoding ascii
+
+          Get-ChildItem dist | Select-Object Name, Length
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             dist/*.zip
             dist/SHA256SUMS.txt
           generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          fail_on_unmatched_files: true
