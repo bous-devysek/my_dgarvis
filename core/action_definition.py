@@ -62,9 +62,13 @@ def strip_triggers(text: str) -> str:
 #Путь к данным
 #---------------------------------------------------------------
 
-DATA_PATH = Path(__file__).resolve().parent.parent /"data"/"entities.json"
-with open(DATA_PATH,encoding="utf-8-sig") as file:
-    DATA = json.load(file)
+DATA_PATH_USER = Path(__file__).resolve().parent.parent /"data"/"entities.json"
+with open(DATA_PATH_USER,encoding="utf-8-sig") as file:
+    DATA_USEUR = json.load(file)
+
+DATA_PATH_DEFAULT = Path(__file__).resolve().parent.parent /"data"/"entities.default.json"
+with open(DATA_PATH_DEFAULT,encoding="utf-8-sig") as file:
+    DATA_DEFAULT = json.load(file)
 
 #---------------------------------------------------------------
 #Модель данных 
@@ -82,12 +86,18 @@ class Entity:
 #Загрузка данных
 def load() -> list[Entity]:
     entities = []
-    for item in DATA:
+    for item in DATA_DEFAULT:
         entities.append(Entity(item["canonical"],
                             item["kind"],
                             item["value"],
                             item["process_name"],
                             tuple(item["aliases"])))
+    for item in DATA_USEUR:
+        entities.append(Entity(item["canonical"],
+                                    item["kind"],
+                                    item["value"],
+                                    item["process_name"],
+                                    tuple(item["aliases"])))
     return entities
 
 

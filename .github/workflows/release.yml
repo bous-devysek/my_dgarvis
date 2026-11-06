@@ -1,0 +1,48 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build archives
+        shell: pwsh
+        run: |
+          $ver = "${{ github.ref_name }}".TrimStart('v')
+          New-Item -ItemType Directory -Force dist | Out-Null
+
+          # --- update: только код ---
+          New-Item -ItemType Directory -Force stage | Out-Null
+          Copy-Item main.py, download_model.py, requirements.txt, run_console.bat, `
+                    install.bat, install.ps1, README.md, LICENSE, `
+                    THIRD_PARTY_NOTICES.md, data, core -Destination stage -Recurse
+          Remove-Item stage/core/vosk-model-small-ru-0.22 -Recurse -Force
+          Remove-Item stage/core/faster-whisper-large-v3-turbo-ct2 -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item stage/data/entities.json -Force -ErrorAction SilentlyContinue
+          Compress-Archive -Path stage/* -DestinationPath "dist/garvis-$ver-update.zip"
+
+          # --- full: для первой установки, с Vosk ---
+          New-Item -ItemType Directory -Force stage-full | Out-Null
+          Copy-Item main.py, download_model.py, requirements.txt, run_console.bat, `
+                    install.bat, install.ps1, README.md, LICENSE, `
+                    THIRD_PARTY_NOTICES.md, data, core -Destination stage-full -Recurse
+          Remove-Item stage-full/core/faster-whisper-large-v3-turbo-ct2 -Recurse -Force -ErrorAction SilentlyContinue
+          Compress-Archive -Path stage-full/* -DestinationPath "dist/garvis-$ver-full.zip"
+
+          Get-FileHash dist/*.zip -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash)  $(Split-Path $_.Path -Leaf)" } |
+            Set-Content dist/SHA256SUMS.txt
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.zip
+            dist/SHA256SUMS.txt
+          generate_release_notes: true
