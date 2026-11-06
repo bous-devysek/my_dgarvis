@@ -11,21 +11,24 @@
 - +- 3,5 ГБ на диске
 
 ## Установка
-Создайте папку, откройте её в PowerShell и выполните:
 
+1. Скачайте архив: https://github.com/bous-devysek/my_dgarvis/archive/refs/heads/main.zip
+2. Распакуйте в папку **без кириллицы** в пути, например `C:\garvis`.
+3. Запустите `install.bat` двойным кликом.
+4. Дождитесь `Done. Launch 'garvis' from the desktop.` и запустите ярлык **garvis** (его можно переименовать при желании) с рабочего стола.
+
+`install.bat` сам:
+- находит Python 3.12–3.14 (или подсказывает, как поставить);
+- создаёт `.venv`;
+- ставит зависимости из `requirements.txt`;
+- скачивает Whisper-модель (~1.6 ГБ);
+- делает ярлык на рабочем столе.
+
+Для разработки:
 ```powershell
 git clone https://github.com/bous-devysek/my_dgarvis.git
 cd my_dgarvis
-py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python download_model.py
-```
-
-После скачивания модели запустите `run_console.bat` двойным кликом
-(консоль можно свернуть, но не закрывать).
-
+.\install.bat
 
 Дождитесь надписи «готов», включите тумблер и скажи «Джарвис». Дальше 20 секунд можно говорить команды без имени; окно продлевается после каждой команды.
 
