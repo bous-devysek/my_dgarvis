@@ -12,7 +12,7 @@
 
 ## Установка
 
-1. Скачайте архив: https://github.com/bous-devysek/my_dgarvis/archive/refs/heads/main.zip
+1. Скачайте архив: https://github.com/bous-devysek/my_dgarvis/archive/refs/heads/main.zip Или через релизы
 2. Распакуйте в папку **без кириллицы** в пути, например `C:\garvis`.
 3. Запустите `install.bat` двойным кликом.
 4. Дождитесь `Done. Launch 'garvis' from the desktop.` и запустите ярлык **garvis** (его можно переименовать при желании) с рабочего стола.
