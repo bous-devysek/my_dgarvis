@@ -6,8 +6,6 @@ setting_user.json
 misunderstood_intents
 misunderstood_request
 
-# Модели Whisper весят 0.5–1.5 ГБ — в git не кладём, качаются отдельно.
-# Vosk-модель специально НЕ здесь: она лежит в репозитории (см. .gitattributes).
 models/faster-whisper*/
 .venv/
 build/
