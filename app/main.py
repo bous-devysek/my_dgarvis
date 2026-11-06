@@ -129,6 +129,7 @@ class App(ctk.CTk):
             print(f"Новое имя {name_asistent}")
             name_asistent = name_asistent.lower()
             self.save_settings("name_asistet", name_asistent) 
+            self.name_asisten_laber.configure(text=f'сейчас: {self.temp_data["name_asistet"]}')
 
 
     #функция отвечающая за запись голоса
