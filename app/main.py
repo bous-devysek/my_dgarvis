@@ -1,3 +1,6 @@
+
+
+
 import customtkinter as ctk
 import winreg
 import sys
@@ -9,6 +12,10 @@ import webbrowser
 from pathlib import Path
 import sounddevice as sd
 import threading
+import asyncio
+
+import core.ws_server as ws
+
 
 ctk.set_appearance_mode('dark')
 ctk.set_default_color_theme('dark-blue')
@@ -28,6 +35,13 @@ standard_user_setting = {
     }
 
 
+def ws_server():
+    asyncio.run(ws.main())
+
+
+thread = threading.Thread(target=ws_server, daemon=True)
+thread.start()
+
 def parse_version(text: str) -> tuple[int, int, int]:
     match = re.match(r"v?(\d+)\.(\d+)\.(\d+)", text.strip())
     return tuple(int(part) for part in match.groups()) if match else (0, 0, 0)
@@ -44,6 +58,7 @@ def github_json(url: str):
     )
     with urllib.request.urlopen(request, timeout=10) as response:
         return json.load(response)
+
 
 #---------------------------------------------------------------
 #Интерфейс приложения / interface

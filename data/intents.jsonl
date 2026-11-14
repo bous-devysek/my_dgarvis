@@ -1,0 +1,9 @@
+{"text": "открой хром", "intent": "open_application"}
+{"text": "запусти гугл хром", "intent": "open_application"}
+{"text": "закрой хром", "intent": "close_application"}
+{"text": "выключи браузер", "intent": "close_application"}
+{"text": "включи firefox","intent":"open_application"}
+{"text": "выруби музыку","intent":"close_application"}
+{"text": "джарвис включи музыку","intent":"open_application"}
+{"text": "окрой мне ютуб","intent":"open_application"}
+{"text": "закрой доту","intent":"close_application"}

@@ -4,7 +4,6 @@ from pathlib import Path
 import core.word_processing as wp
 import re,json,os,ctypes
 
-
 _TRIGGER_RUN_APPLICATION = frozenset({
     "открыть", "открывать", "запустить", "запускать",
     "включить", "включать", "врубить", "врубать",
@@ -53,10 +52,27 @@ def _normalize(text: str) -> str:
 def _same_polarity(a: str, b: str) -> bool:
     return a.startswith("вы") == b.startswith("вы")
 
+def extrect_entity(text:str,vocab, threshold=82, margin=6) -> str:
+    words = text.split()
+    best = None
+    for n in range(1,5):
+        for i in range(len(words) - n + 1):
+            span = " ".join(words[i:i + n])
+            m = VOCAB.resolve(span,threshold=threshold, margin=margin)
+            if m is None:
+                continue
+            entity,score,_ = m
+            rank = (score,n)
+            if best is None or rank > best[0]:
+                best = (rank,entity)
+    return best[1] if best else None
+
 
 def strip_triggers(text: str) -> str:
     words = _normalize(text).split()
-    return " ".join(w for w in words if w not in _TRIGGER_RUN_APPLICATION)
+    result = " ".join(w for w in words if w not in _TRIGGER_RUN_APPLICATION)
+    result += " ".join(w for w in words if w not in _TRIGER_CLOSE_APPLICATION)
+    return result
 
 #---------------------------------------------------------------
 #Путь к данным
@@ -73,7 +89,6 @@ with open(DATA_PATH_DEFAULT,encoding="utf-8-sig") as file:
 #---------------------------------------------------------------
 #Модель данных 
 #---------------------------------------------------------------
-
 @dataclass(frozen=True)
 class Entity:
     canonical:str
@@ -186,12 +201,15 @@ def command_processing(user_query:str) -> None:
     if command not in _INTENTS.keys():
         print("команда не распознана")
         return
-    match = VOCAB.resolve(strip_triggers(user_query))          # resolve из прошлого обсуждения
-    if match is None:
-        print("не понял, что открыть")
-        return
+    match = VOCAB.resolve(strip_triggers(user_query)) 
 
-    entity, score, runner = match
+    if match is None:
+        match = extrect_entity(strip_triggers(user_query))
+        if match is None:
+            print("не понял, что открыть")
+            return
+
+    entity,_,_ = match
     if command == "run_application":
         OPEN_HANDLERS[entity.kind](entity)
     elif command == "close_application":
