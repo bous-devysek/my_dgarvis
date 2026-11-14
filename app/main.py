@@ -5,7 +5,6 @@ import customtkinter as ctk
 import winreg
 import sys
 import json
-import os
 import re
 import urllib.request
 import webbrowser
@@ -15,7 +14,6 @@ import threading
 import asyncio
 
 import core.ws_server as ws
-
 
 ctk.set_appearance_mode('dark')
 ctk.set_default_color_theme('dark-blue')

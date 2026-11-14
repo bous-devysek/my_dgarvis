@@ -1,8 +1,12 @@
 from rapidfuzz import fuzz,process
 from dataclasses import dataclass
 from pathlib import Path
-import core.word_processing as wp
+import joblib
 import re,json,os,ctypes
+
+
+import core.word_processing as wp
+import core.intent_model as im
 
 _TRIGGER_RUN_APPLICATION = frozenset({
     "открыть", "открывать", "запустить", "запускать",
@@ -86,6 +90,7 @@ DATA_PATH_DEFAULT = Path(__file__).resolve().parent.parent.parent /"data"/"entit
 with open(DATA_PATH_DEFAULT,encoding="utf-8-sig") as file:
     DATA_DEFAULT = json.load(file)
 
+UNRECOGNIZED_PATH = Path(__file__).resolve().parent.parent.parent /"data"/"unrecognized.jsonl"
 #---------------------------------------------------------------
 #Модель данных 
 #---------------------------------------------------------------
@@ -139,7 +144,7 @@ class Vocabulary:
         query = _normalize(text)
 
         exact = self._by_key.get(query)
-        if exact:
+        if exact: 
             return exact, 100.0, 100.0
 
         found = process.extract(query, self._by_key.keys(), scorer=fuzz.WRatio, limit=5)
@@ -164,6 +169,19 @@ VOCAB = Vocabulary(load())
 #----------------------------------------------------------------
 #Обработка-команд
 #----------------------------------------------------------------
+
+# Импортируем intent_model
+model_path = Path(__file__).resolve().parent.parent.parent / "data" / "intent_model"
+model = joblib.load(model_path)
+def model_get_intent(text:str,threshold:float = 0.5):
+    probs = model.predict_proda([text])[0]
+    max_prob = probs.max()
+    best_idx = probs.argmax()
+    if max_prob < threshold:
+        return None, max_prob
+    intent = model.classes_[best_idx]
+    return intent, max_prob
+
 
 def detect_intent(user_query: str) -> str|None:
     print("------Обработка-команды------")
@@ -193,7 +211,14 @@ def detect_intent(user_query: str) -> str|None:
             intent,score,trigger = best
             print(f"Интент: {intent}")
             return intent
+        #если fuzz не смог определить слово то оно проходит через модель
+        else:
+            intent,_ = model_get_intent(query)
+            if intent: return intent
     print(f"По запросу {query} не распознано ни 1 интета")
+    with open(UNRECOGNIZED_PATH, "a" ,encoding="utf-8") as file:
+        file.write(f'"text": "{query}","intent": ""' + "\n")
+
 
 def command_processing(user_query:str) -> None:
     user_query = " ".join(wp.lemmatization(user_query))
