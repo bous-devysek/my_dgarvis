@@ -56,16 +56,16 @@ def _normalize(text: str) -> str:
 def _same_polarity(a: str, b: str) -> bool:
     return a.startswith("вы") == b.startswith("вы")
 
-def extrect_entity(text:str,vocab, threshold=82, margin=6) -> str:
+def extrect_entity(text:str,threshold=82, margin=6) -> str:
     words = text.split()
     best = None
     for n in range(1,5):
         for i in range(len(words) - n + 1):
             span = " ".join(words[i:i + n])
             m = VOCAB.resolve(span,threshold=threshold, margin=margin)
-            if m is None:
-                continue
             entity,score,_ = m
+            if entity is None or score is None:
+                continue
             rank = (score,n)
             if best is None or rank > best[0]:
                 best = (rank,entity)
@@ -74,9 +74,9 @@ def extrect_entity(text:str,vocab, threshold=82, margin=6) -> str:
 
 def strip_triggers(text: str) -> str:
     words = _normalize(text).split()
-    result = " ".join(w for w in words if w not in _TRIGGER_RUN_APPLICATION)
-    result += " ".join(w for w in words if w not in _TRIGER_CLOSE_APPLICATION)
-    return result
+    return " ".join( w for w in words
+        if w not in _TRIGGER_RUN_APPLICATION and w not in _TRIGER_CLOSE_APPLICATION
+        )
 
 #---------------------------------------------------------------
 #Путь к данным
@@ -91,6 +91,8 @@ with open(DATA_PATH_DEFAULT,encoding="utf-8-sig") as file:
     DATA_DEFAULT = json.load(file)
 
 UNRECOGNIZED_PATH = Path(__file__).resolve().parent.parent.parent /"data"/"unrecognized.jsonl"
+
+NAME_UNRECOGNIZED_PATH = Path(__file__).resolve().parent.parent.parent /"data"/"name_unrecognized.jsonl"
 #---------------------------------------------------------------
 #Модель данных 
 #---------------------------------------------------------------
@@ -158,10 +160,10 @@ class Vocabulary:
             ranked.append((e, score))
 
         if not ranked or ranked[0][1] < threshold:
-            return None
+            return None,None,None
         runner = ranked[1][1] if len(ranked) > 1 else 0.0
         if ranked[0][1] - runner < margin:
-            return None
+            return None,None,None
         return ranked[0][0], ranked[0][1], runner
 
 VOCAB = Vocabulary(load())
@@ -171,8 +173,9 @@ VOCAB = Vocabulary(load())
 #----------------------------------------------------------------
 
 # Импортируем intent_model
-model_path = Path(__file__).resolve().parent.parent.parent / "data" / "intent_model"
-model = joblib.load(model_path)
+#model_path = Path(__file__).resolve().parent.parent.parent / "data" / "intent_model"
+#model = joblib.load(model_path)
+model = ''
 def model_get_intent(text:str,threshold:float = 0.5):
     probs = model.predict_proda([text])[0]
     max_prob = probs.max()
@@ -212,9 +215,9 @@ def detect_intent(user_query: str) -> str|None:
             print(f"Интент: {intent}")
             return intent
         #если fuzz не смог определить слово то оно проходит через модель
-        else:
-            intent,_ = model_get_intent(query)
-            if intent: return intent
+        else: pass 
+            #intent,_ = model_get_intent(query)
+            #if intent: return intent
     print(f"По запросу {query} не распознано ни 1 интета")
     with open(UNRECOGNIZED_PATH, "a" ,encoding="utf-8") as file:
         file.write(f'"text": "{query}","intent": ""' + "\n")
@@ -227,14 +230,17 @@ def command_processing(user_query:str) -> None:
         print("команда не распознана")
         return
     match = VOCAB.resolve(strip_triggers(user_query)) 
-
-    if match is None:
+    entity,score,_ = match
+    if not entity:
         match = extrect_entity(strip_triggers(user_query))
-        if match is None:
+        entity = match
+        if not entity:
             print("не понял, что открыть")
+            with open(NAME_UNRECOGNIZED_PATH,"a",encoding="utf-8") as file:
+                file.write(user_query + '\n')
             return
-
-    entity,_,_ = match
+    print("-------------Результат-------------------")    
+    print(entity.canonical, score)
     if command == "run_application":
         OPEN_HANDLERS[entity.kind](entity)
     elif command == "close_application":
