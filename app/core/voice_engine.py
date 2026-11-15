@@ -40,7 +40,9 @@ BLOCK_SIZE = 512            # 512 сэмплов = 32 мс при 16 кГц
 
 SPEECH_THRESHOLD = 0.5      # Silero VAD: выше порога кадр считается речью
 SILENCE_BLOCKS = 34         # 34 * 32 мс ≈ 1.1 с тишины завершают фразу
-WAKE_TIMEOUT = 20.0         # Время ожидания команды
+WAKE_TIMEOUT = 30.0         # Время ожидания команды
+MIN_SPEECH_SEC = 0.3
+MIN_SPEECH_RATIO = 0.3
 
 # ---------------------------------------------------------------------------
 # Пути
@@ -135,7 +137,9 @@ class Voice_enginer:
         self.vad_model = load_silero_vad()
         self._wake_deadline = 0.0
         self._reset_capture()
+        self.speech_frames = 0
         print("Все готово к работе")
+
 
     # ------------------------------------------------------------- запись
 
@@ -173,8 +177,10 @@ class Voice_enginer:
 
         if speech_prob > SPEECH_THRESHOLD and self.wake_word:
             self._buffer_speech(audio_frame)
+            self.speech_frames += 1
         else:
             self._track_silence(audio_frame)
+
 
     def _buffer_speech(self, audio_frame: np.ndarray) -> None:
         """Копит кадры речи и сбрасывает счётчик тишины."""
@@ -184,6 +190,7 @@ class Voice_enginer:
 
         self.audio_buffer.append(audio_frame.copy())
         self.silence_counter = 0
+
 
     def _track_silence(self, audio_frame: np.ndarray) -> None:
         """Считает тишину и закрывает фразу, когда её накопилось достаточно."""
@@ -196,17 +203,32 @@ class Voice_enginer:
         if self.silence_counter > SILENCE_BLOCKS:
             self._process_utterance()
 
+
     def _reset_capture(self) -> None:
         """Готовит состояние записи к следующей фразе."""
         self.audio_buffer: list[np.ndarray] = []
         self.speech_status = False
         self.silence_counter = 0
+        self.vad_model.reset_states()
+        self.speech_frames = 0
+
+
+    def _has_enough_speech(self) -> bool:
+        buffered = len(self.audio_buffer)
+        speech_region = buffered - self.silence_counter 
+        speech_dur = self.speech_frames * BLOCK_SIZE / SAMPLE_RATE
+        ratio = self.speech_frames / speech_region if speech_region > 0 else 0.0
+
+        return speech_dur >= MIN_SPEECH_SEC and ratio >= MIN_SPEECH_RATIO
+
 
     # -------------------------------------------------------- распознавание
 
     def _process_utterance(self) -> None:
         """Склеивает буфер, распознаёт речь и передаёт текст обработчику команд."""
-        if not self.audio_buffer:
+
+        if not self._has_enough_speech():
+            self._reset_capture()
             return
 
         full_audio = np.concatenate(self.audio_buffer)
@@ -217,13 +239,20 @@ class Voice_enginer:
         segments, _ = self.whisper_model.transcribe(
             full_audio,
             beam_size=5,
+            condition_on_previous_text=False,
+            no_speech_threshold=0.6,
+            log_prob_threshold=-1.0,
+            compression_ratio_threshold=2.4,
+            vad_filter=False
         )
         result = "".join(segment.text for segment in segments)
 
         if result:
             print(f"команда отправлена:{result}")
-            self.prolongation()
-            ad.command_processing(result)
+            self.status_comad = ad.command_processing(result)
+            if self.status_comad:
+                self.prolongation()
+
 
     def _worker(self) -> None:
         """Поток-потребитель ``command_queue`` (очередь пока не наполняется)."""
@@ -231,6 +260,7 @@ class Voice_enginer:
             text = command_queue.get()
             ad.command_processing(text)
             command_queue.task_done()
+            
 
     # ---------------------------------------------------------- управление
 

@@ -228,7 +228,7 @@ def command_processing(user_query:str) -> None:
     command = detect_intent(user_query)
     if command not in _INTENTS.keys():
         print("команда не распознана")
-        return
+        return False
     match = VOCAB.resolve(strip_triggers(user_query)) 
     entity,score,_ = match
     if not entity:
@@ -238,10 +238,11 @@ def command_processing(user_query:str) -> None:
             print("не понял, что открыть")
             with open(NAME_UNRECOGNIZED_PATH,"a",encoding="utf-8") as file:
                 file.write(user_query + '\n')
-            return
+            return False
     print("-------------Результат-------------------")    
     print(entity.canonical, score)
     if command == "run_application":
         OPEN_HANDLERS[entity.kind](entity)
     elif command == "close_application":
         CLOSE_HANDLERS[entity.kind](entity)
+    return True

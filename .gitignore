@@ -9,6 +9,7 @@ data/entities.json
 intents.jsonl
 name_unrecognized.jsonl
 unrecognized.jsonl
+name_unrecognized.txt
 
 models/faster-whisper*/
 .venv/
