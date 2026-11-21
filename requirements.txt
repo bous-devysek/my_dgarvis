@@ -12,3 +12,6 @@ torch==2.14.1
 huggingface_hub==1.33.0
 nvidia-cublas-cu12==12.9.2.10
 nvidia-cudnn-cu12==9.27.0.42
+websockets==17.4
+scikit-learn==1.9.1
+joblib==1.6.0

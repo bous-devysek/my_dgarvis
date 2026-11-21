@@ -223,7 +223,7 @@ def detect_intent(user_query: str) -> str|None:
         file.write(f'"text": "{query}","intent": ""' + "\n")
 
 
-def command_processing(user_query:str) -> None:
+def command_processing(user_query:str) -> bool:
     user_query = " ".join(wp.lemmatization(user_query))
     command = detect_intent(user_query)
     if command not in _INTENTS.keys():
