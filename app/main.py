@@ -7,19 +7,15 @@ import sys
 import json
 import re
 import urllib.request
-import webbrowser
 from pathlib import Path
 import sounddevice as sd
 import threading
-import asyncio
-
-import core.ws_server as ws
 
 ctk.set_appearance_mode('dark')
 ctk.set_default_color_theme('dark-blue')
 
 APP_NAME = 'garvis'
-APP_VERSION = "0.0.5"
+APP_VERSION = "0.0.6"
 GITHUB_REPO = "bous-devysek/my_dgarvis"
 GITHUB_RELEASES_API = f"https://api.github.com/repos/{GITHUB_REPO}/releases?per_page=1"
 GITHUB_TAGS_API = f"https://api.github.com/repos/{GITHUB_REPO}/tags?per_page=1"
@@ -31,14 +27,6 @@ standard_user_setting = {
     "stats_auto_load":0,
     "input_device": None,
     }
-
-
-def ws_server():
-    asyncio.run(ws.main())
-
-
-thread = threading.Thread(target=ws_server, daemon=True)
-thread.start()
 
 def parse_version(text: str) -> tuple[int, int, int]:
     match = re.match(r"v?(\d+)\.(\d+)\.(\d+)", text.strip())
@@ -230,12 +218,6 @@ class App(ctk.CTk):
     def _show_update_error(self,text):
         self.update_status.configure(text="не удалось проверить обновления")
         self._update_button(text)
-
-
-    def open_release_page(self):
-        if self.latest_release:
-            webbrowser.open(self.latest_release["html_url"])
-
 
 if __name__ == "__main__":
     app = App()

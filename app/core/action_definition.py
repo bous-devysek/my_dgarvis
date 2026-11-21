@@ -6,7 +6,6 @@ import re,json,os,ctypes
 
 
 import core.word_processing as wp
-import core.intent_model as im
 
 _TRIGGER_RUN_APPLICATION = frozenset({
     "открыть", "открывать", "запустить", "запускать",
@@ -83,6 +82,9 @@ def strip_triggers(text: str) -> str:
 #---------------------------------------------------------------
 
 DATA_PATH_USER = Path(__file__).resolve().parent.parent.parent /"data"/"entities.json"
+if not DATA_PATH_USER.exists():
+    DATA_PATH_USER.write_text("[]\n", encoding="utf-8")
+    
 with open(DATA_PATH_USER,encoding="utf-8-sig") as file:
     DATA_USEUR = json.load(file)
 
