@@ -5,6 +5,11 @@ __pycache__/
 setting_user.json
 misunderstood_intents
 misunderstood_request
+data/entities.json
+intents.jsonl
+name_unrecognized.jsonl
+unrecognized.jsonl
+name_unrecognized.txt
 
 models/faster-whisper*/
 .venv/

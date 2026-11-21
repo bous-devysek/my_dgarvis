@@ -1,9 +1,11 @@
 from rapidfuzz import fuzz,process
 from dataclasses import dataclass
 from pathlib import Path
-import core.word_processing as wp
+import joblib
 import re,json,os,ctypes
 
+
+import core.word_processing as wp
 
 _TRIGGER_RUN_APPLICATION = frozenset({
     "открыть", "открывать", "запустить", "запускать",
@@ -53,16 +55,36 @@ def _normalize(text: str) -> str:
 def _same_polarity(a: str, b: str) -> bool:
     return a.startswith("вы") == b.startswith("вы")
 
+def extrect_entity(text:str,threshold=82, margin=6) -> str:
+    words = text.split()
+    best = None
+    for n in range(1,5):
+        for i in range(len(words) - n + 1):
+            span = " ".join(words[i:i + n])
+            m = VOCAB.resolve(span,threshold=threshold, margin=margin)
+            entity,score,_ = m
+            if entity is None or score is None:
+                continue
+            rank = (score,n)
+            if best is None or rank > best[0]:
+                best = (rank,entity)
+    return best[1] if best else None
+
 
 def strip_triggers(text: str) -> str:
     words = _normalize(text).split()
-    return " ".join(w for w in words if w not in _TRIGGER_RUN_APPLICATION)
+    return " ".join( w for w in words
+        if w not in _TRIGGER_RUN_APPLICATION and w not in _TRIGER_CLOSE_APPLICATION
+        )
 
 #---------------------------------------------------------------
 #Путь к данным
 #---------------------------------------------------------------
 
 DATA_PATH_USER = Path(__file__).resolve().parent.parent.parent /"data"/"entities.json"
+if not DATA_PATH_USER.exists():
+    DATA_PATH_USER.write_text("[]\n", encoding="utf-8")
+    
 with open(DATA_PATH_USER,encoding="utf-8-sig") as file:
     DATA_USEUR = json.load(file)
 
@@ -70,10 +92,12 @@ DATA_PATH_DEFAULT = Path(__file__).resolve().parent.parent.parent /"data"/"entit
 with open(DATA_PATH_DEFAULT,encoding="utf-8-sig") as file:
     DATA_DEFAULT = json.load(file)
 
+UNRECOGNIZED_PATH = Path(__file__).resolve().parent.parent.parent /"data"/"unrecognized.jsonl"
+
+NAME_UNRECOGNIZED_PATH = Path(__file__).resolve().parent.parent.parent /"data"/"name_unrecognized.jsonl"
 #---------------------------------------------------------------
 #Модель данных 
 #---------------------------------------------------------------
-
 @dataclass(frozen=True)
 class Entity:
     canonical:str
@@ -124,7 +148,7 @@ class Vocabulary:
         query = _normalize(text)
 
         exact = self._by_key.get(query)
-        if exact:
+        if exact: 
             return exact, 100.0, 100.0
 
         found = process.extract(query, self._by_key.keys(), scorer=fuzz.WRatio, limit=5)
@@ -138,10 +162,10 @@ class Vocabulary:
             ranked.append((e, score))
 
         if not ranked or ranked[0][1] < threshold:
-            return None
+            return None,None,None
         runner = ranked[1][1] if len(ranked) > 1 else 0.0
         if ranked[0][1] - runner < margin:
-            return None
+            return None,None,None
         return ranked[0][0], ranked[0][1], runner
 
 VOCAB = Vocabulary(load())
@@ -149,6 +173,20 @@ VOCAB = Vocabulary(load())
 #----------------------------------------------------------------
 #Обработка-команд
 #----------------------------------------------------------------
+
+# Импортируем intent_model
+#model_path = Path(__file__).resolve().parent.parent.parent / "data" / "intent_model"
+#model = joblib.load(model_path)
+model = ''
+def model_get_intent(text:str,threshold:float = 0.5):
+    probs = model.predict_proda([text])[0]
+    max_prob = probs.max()
+    best_idx = probs.argmax()
+    if max_prob < threshold:
+        return None, max_prob
+    intent = model.classes_[best_idx]
+    return intent, max_prob
+
 
 def detect_intent(user_query: str) -> str|None:
     print("------Обработка-команды------")
@@ -178,21 +216,35 @@ def detect_intent(user_query: str) -> str|None:
             intent,score,trigger = best
             print(f"Интент: {intent}")
             return intent
+        #если fuzz не смог определить слово то оно проходит через модель
+        else: pass 
+            #intent,_ = model_get_intent(query)
+            #if intent: return intent
     print(f"По запросу {query} не распознано ни 1 интета")
+    with open(UNRECOGNIZED_PATH, "a" ,encoding="utf-8") as file:
+        file.write(f'"text": "{query}","intent": ""' + "\n")
 
-def command_processing(user_query:str) -> None:
+
+def command_processing(user_query:str) -> bool:
     user_query = " ".join(wp.lemmatization(user_query))
     command = detect_intent(user_query)
     if command not in _INTENTS.keys():
         print("команда не распознана")
-        return
-    match = VOCAB.resolve(strip_triggers(user_query))          # resolve из прошлого обсуждения
-    if match is None:
-        print("не понял, что открыть")
-        return
-
-    entity, score, runner = match
+        return False
+    match = VOCAB.resolve(strip_triggers(user_query)) 
+    entity,score,_ = match
+    if not entity:
+        match = extrect_entity(strip_triggers(user_query))
+        entity = match
+        if not entity:
+            print("не понял, что открыть")
+            with open(NAME_UNRECOGNIZED_PATH,"a",encoding="utf-8") as file:
+                file.write(user_query + '\n')
+            return False
+    print("-------------Результат-------------------")    
+    print(entity.canonical, score)
     if command == "run_application":
         OPEN_HANDLERS[entity.kind](entity)
     elif command == "close_application":
         CLOSE_HANDLERS[entity.kind](entity)
+    return True

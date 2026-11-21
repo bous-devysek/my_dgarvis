@@ -18,7 +18,7 @@
         "kind": "game",
         "value": "1422450",
         "process_name": "deadlock.exe",
-        "aliases": ["дедлок","додогмочь","дедлог"]
+        "aliases": ["дедлок","додогмочь","дедлог","дедулок","додорог"]
     },
     {
         "canonical": "Metro 2033 Redux",
@@ -32,7 +32,7 @@
         "kind": "game",
         "value": "2527500",
         "process_name": "MiSideFull.exe",
-        "aliases": []
+        "aliases": ["мисайд"]
     },
     {
         "canonical": "No, I'm not a Human",
@@ -46,21 +46,21 @@
         "kind": "game",
         "value": "420530",
         "process_name": "OneShot.exe",
-        "aliases": []
+        "aliases": ["ван шот"]
     },
     {
         "canonical": "Raft",
         "kind": "game",
         "value": "648800",
         "process_name": "Raft.exe",
-        "aliases": []
+        "aliases": ["рафт"]
     },
     {
         "canonical": "Rain World",
         "kind": "game",
         "value": "312520",
         "process_name": "RainWorld.exe",
-        "aliases": []
+        "aliases": ["реин ворлд"]
     },
     {
         "canonical": "Bloons TD 6",
@@ -74,7 +74,7 @@
         "kind": "game",
         "value": "268910",
         "process_name": "Cuphead.exe",
-        "aliases": []
+        "aliases": ["капхет"]
     },
     {
         "canonical": "Devil May Cry HD Collection",
@@ -102,21 +102,21 @@
         "kind": "game",
         "value": "322170",
         "process_name": "GeometryDash.exe",
-        "aliases": []
+        "aliases": ["геометрия дышать","геометри деш"]
     },
     {
         "canonical": "Hollow Knight: Silksong",
         "kind": "game",
         "value": "1030300",
         "process_name": "Hollow Knight Silksong.exe",
-        "aliases": []
+        "aliases": ["silksong"]
     },
     {
         "canonical": "Phasmophobia",
         "kind": "game",
         "value": "739630",
         "process_name": "Phasmophobia.exe",
-        "aliases": ["фазмафобия","фазма фобия"]
+        "aliases": ["фазмафобия","фазма фобия","фазмофобию","фосмофобию"]
     },
     {
         "canonical": "Project Zomboid",
@@ -207,7 +207,7 @@
         "kind": "game",
         "value": "3241660",
         "process_name": "REPO.exe",
-        "aliases": ["репо"]
+        "aliases": ["репо","репа"]
     },
     {
         "canonical": "Terraria",
@@ -235,7 +235,7 @@
         "kind": "game",
         "value": "218620",
         "process_name": "payday2_win32_release.exe",
-        "aliases": ["пейдей","пейдей"]
+        "aliases": ["пейдей"]
     },
     {
         "canonical": "The Forest",
